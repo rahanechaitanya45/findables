@@ -1,0 +1,8 @@
+{
+  "name": "Amazon.godeals - Curated Deals & Smart Recommendations",
+  "description": "Independent Amazon India deals and product recommendations curated for smart shoppers and Instagram followers. Discover trending deals, budget finds under ₹499, and honest editorial picks.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

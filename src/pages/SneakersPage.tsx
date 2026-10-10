@@ -1,0 +1,324 @@
+import React, { useState, useMemo } from 'react';
+import {
+  ChevronRight,
+  Filter,
+  Footprints,
+  Sparkles,
+  ShieldCheck,
+  Search,
+  ExternalLink,
+  Tag,
+} from 'lucide-react';
+import { Product } from '../types';
+import { ProductCard } from '../components/ProductCard';
+import { getGreatIndianFestivalUrl } from '../services/affiliate';
+
+interface SneakersPageProps {
+  products: Product[];
+  onSelectProduct: (product: Product) => void;
+  onToggleWishlist?: (product: Product) => void;
+  isWishlisted?: (productId: string) => boolean;
+  onNavigate: (path: string) => void;
+}
+
+export const SneakersPage: React.FC<SneakersPageProps> = ({
+  products,
+  onSelectProduct,
+  onToggleWishlist,
+  isWishlisted,
+  onNavigate,
+}) => {
+  const [selectedSneakerType, setSelectedSneakerType] = useState<string>('all');
+  const [selectedGender, setSelectedGender] = useState<string>('all');
+  const [selectedBrand, setSelectedBrand] = useState<string>('all');
+  const [selectedPriceRange, setSelectedPriceRange] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<'recommended' | 'price_asc' | 'price_desc' | 'rating'>('recommended');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [visibleCount, setVisibleCount] = useState<number>(12);
+
+  // All sneakers
+  const sneakerProducts = useMemo(() => {
+    return products.filter((p) => p.category === 'fashion' && p.subCategory === 'sneakers');
+  }, [products]);
+
+  // Unique brands
+  const availableBrands = useMemo(() => {
+    const set = new Set<string>();
+    sneakerProducts.forEach((p) => {
+      if (p.brand) set.add(p.brand);
+    });
+    return Array.from(set).sort();
+  }, [sneakerProducts]);
+
+  // Filtered
+  const filteredProducts = useMemo(() => {
+    let list = [...sneakerProducts];
+
+    // Sneaker style type
+    if (selectedSneakerType !== 'all') {
+      list = list.filter((p) => p.sneakerType === selectedSneakerType);
+    }
+
+    // Gender filter
+    if (selectedGender !== 'all') {
+      list = list.filter((p) => p.gender === selectedGender || p.gender === 'unisex');
+    }
+
+    // Brand filter
+    if (selectedBrand !== 'all') {
+      list = list.filter((p) => p.brand.toLowerCase() === selectedBrand.toLowerCase());
+    }
+
+    // Budget & Price range filter
+    if (selectedPriceRange === 'under999') {
+      list = list.filter((p) => p.currentPrice <= 999);
+    } else if (selectedPriceRange === '1000to1500') {
+      list = list.filter((p) => p.currentPrice >= 1000 && p.currentPrice <= 1500);
+    } else if (selectedPriceRange === 'above1500') {
+      list = list.filter((p) => p.currentPrice > 1500);
+    }
+
+    // Search query
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      list = list.filter(
+        (p) =>
+          p.title.toLowerCase().includes(q) ||
+          p.brand.toLowerCase().includes(q) ||
+          p.asin.toLowerCase().includes(q) ||
+          p.editorialOneLiner.toLowerCase().includes(q)
+      );
+    }
+
+    // Sorting
+    if (sortBy === 'price_asc') {
+      list.sort((a, b) => a.currentPrice - b.currentPrice);
+    } else if (sortBy === 'price_desc') {
+      list.sort((a, b) => b.currentPrice - a.currentPrice);
+    } else if (sortBy === 'rating') {
+      list.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+    } else {
+      list.sort((a, b) => {
+        const scoreA = (a.isDealOfTheDay ? 4 : 0) + (a.isEditorPick ? 3 : 0) + (a.isFeatured ? 2 : 0);
+        const scoreB = (b.isDealOfTheDay ? 4 : 0) + (b.isEditorPick ? 3 : 0) + (b.isFeatured ? 2 : 0);
+        return scoreB - scoreA;
+      });
+    }
+
+    return list;
+  }, [sneakerProducts, selectedSneakerType, selectedGender, selectedBrand, selectedPriceRange, searchQuery, sortBy]);
+
+  const displayedProducts = filteredProducts.slice(0, visibleCount);
+  const hasMore = visibleCount < filteredProducts.length;
+
+  return (
+    <div className="space-y-6">
+      {/* Breadcrumb Navigation */}
+      <nav className="flex items-center gap-1.5 text-xs text-slate-500">
+        <button onClick={() => onNavigate('/')} className="hover:text-slate-900 transition-colors cursor-pointer">
+          Home
+        </button>
+        <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+        <button onClick={() => onNavigate('/categories/fashion')} className="hover:text-slate-900 transition-colors cursor-pointer">
+          Fashion
+        </button>
+        <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+        <span className="text-[#007185] font-bold">Sneakers</span>
+      </nav>
+
+      {/* Header Banner */}
+      <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs p-6 space-y-2">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <div className="w-9 h-9 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center border border-teal-200/80">
+                <Footprints className="w-5 h-5" />
+              </div>
+              <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+                Sneakers &amp; Footwear
+              </h1>
+            </div>
+            <p className="text-xs sm:text-sm text-slate-500">
+              Top-rated casual court kicks, breathable running shoes, and budget daily sneakers on Amazon India.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold text-slate-600 bg-slate-100 px-3 py-1 rounded-full font-mono">
+              {filteredProducts.length} verified pairs
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Style & Budget Pills Row */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none select-none">
+        {[
+          { id: 'all', label: 'All Sneakers' },
+          { id: 'casual', label: 'Casual Kicks' },
+          { id: 'running', label: 'Running & Training' },
+          { id: 'everyday', label: 'Everyday Footwear' },
+          { id: 'budget', label: 'Budget Sneakers (Under ₹999)' },
+        ].map((type) => (
+          <button
+            key={type.id}
+            onClick={() => {
+              setSelectedSneakerType(type.id);
+              setVisibleCount(12);
+            }}
+            className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors cursor-pointer ${
+              selectedSneakerType === type.id
+                ? 'bg-[#131921] text-white shadow-xs'
+                : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
+            }`}
+          >
+            {type.label}
+          </button>
+        ))}
+      </div>
+
+      {/* Filter and Sorting Toolbar */}
+      <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs p-4 space-y-3">
+        <div className="flex flex-col lg:flex-row gap-3 items-center justify-between">
+          {/* Search Box */}
+          <div className="relative w-full lg:w-64">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search sneakers by brand, model..."
+              className="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF9900]"
+            />
+          </div>
+
+          {/* Filters Group */}
+          <div className="flex items-center gap-2 flex-wrap w-full lg:w-auto justify-end text-xs">
+            {/* Gender Filter */}
+            <select
+              value={selectedGender}
+              onChange={(e) => setSelectedGender(e.target.value)}
+              className="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-700 font-medium focus:outline-none cursor-pointer"
+            >
+              <option value="all">Gender: All</option>
+              <option value="men">Men's Sneakers</option>
+              <option value="women">Women's Sneakers</option>
+            </select>
+
+            {/* Brand Filter */}
+            <select
+              value={selectedBrand}
+              onChange={(e) => setSelectedBrand(e.target.value)}
+              className="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-700 font-medium focus:outline-none cursor-pointer"
+            >
+              <option value="all">All Brands</option>
+              {availableBrands.map((brand) => (
+                <option key={brand} value={brand}>
+                  {brand}
+                </option>
+              ))}
+            </select>
+
+            {/* Price Filter */}
+            <select
+              value={selectedPriceRange}
+              onChange={(e) => setSelectedPriceRange(e.target.value)}
+              className="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-700 font-medium focus:outline-none cursor-pointer"
+            >
+              <option value="all">Budget: All</option>
+              <option value="under999">Under ₹999</option>
+              <option value="1000to1500">₹1,000 - ₹1,500</option>
+              <option value="above1500">Above ₹1,500</option>
+            </select>
+
+            {/* Sorting */}
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as any)}
+              className="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-700 font-medium focus:outline-none cursor-pointer"
+            >
+              <option value="recommended">Sort: Popularity</option>
+              <option value="price_asc">Price: Low to High</option>
+              <option value="price_desc">Price: High to Low</option>
+              <option value="rating">Customer Rating</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* Sneakers Product Grid */}
+      <div>
+        {filteredProducts.length === 0 ? (
+          <div className="bg-white rounded-xl border border-slate-200 p-10 text-center space-y-4">
+            <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
+              <Tag className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-base font-bold text-slate-800">
+                {sneakerProducts.length === 0
+                  ? 'No sneakers currently in the catalog'
+                  : 'No sneakers found matching your filters'}
+              </h3>
+              <p className="text-xs text-slate-500 max-w-md mx-auto mt-1">
+                {sneakerProducts.length === 0
+                  ? 'All previous product listings have been removed. Explore verified sneaker collections directly on Amazon India.'
+                  : 'Try adjusting your style selection, brand filter, or price parameters.'}
+              </p>
+            </div>
+            <div className="flex flex-wrap justify-center gap-2 pt-2">
+              {sneakerProducts.length > 0 ? (
+                <button
+                  onClick={() => {
+                    setSelectedSneakerType('all');
+                    setSelectedGender('all');
+                    setSelectedBrand('all');
+                    setSelectedPriceRange('all');
+                    setSearchQuery('');
+                  }}
+                  className="bg-slate-900 text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-slate-800 cursor-pointer"
+                >
+                  Reset All Filters
+                </button>
+              ) : (
+                <a
+                  href={getGreatIndianFestivalUrl()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 bg-[#FFD814] text-slate-950 font-extrabold text-xs px-5 py-2.5 rounded-lg hover:bg-[#F7CA00] cursor-pointer shadow-xs border border-[#FCD200]"
+                >
+                  <span>Explore Sneakers on Amazon India</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+            {displayedProducts.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onSelect={onSelectProduct}
+                onToggleWishlist={onToggleWishlist}
+                isWishlisted={isWishlisted ? isWishlisted(product.id) : false}
+                pageLocation="sneakers_page"
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Incremental Loading / Pagination */}
+        {hasMore && (
+          <div className="text-center pt-6">
+            <button
+              onClick={() => setVisibleCount((prev) => prev + 12)}
+              className="bg-white hover:bg-slate-50 text-slate-800 border border-slate-300 font-bold text-xs px-6 py-2.5 rounded-lg shadow-2xs hover:shadow-xs transition-all cursor-pointer"
+            >
+              Load More Sneakers ({filteredProducts.length - visibleCount} remaining)
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
