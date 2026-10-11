@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckCircle2, ShieldCheck, HeartHandshake, Eye, ExternalLink } from 'lucide-react';
+import { ShieldCheck, Sparkles, Filter, Clock, CheckCircle2, ArrowRight } from 'lucide-react';
 import { AMAZON_ASSOCIATE_TAG } from '../services/affiliate';
 
 interface TrustSectionProps {
@@ -8,78 +8,105 @@ interface TrustSectionProps {
 
 export const TrustSection: React.FC<TrustSectionProps> = ({ onOpenDisclosure }) => {
   return (
-    <section id="why-recommend" className="py-12 bg-white border-y border-slate-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-10">
-          <span className="text-xs font-semibold text-[#FF7900] uppercase tracking-wider">
-            Integrity First
-          </span>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0B1220] mt-1">
-            Why I Recommend These Products
+    <section id="findables-mission" className="my-8 bg-white border border-slate-200/90 rounded-2xl p-6 sm:p-10 shadow-xs select-none">
+      <div className="max-w-6xl mx-auto space-y-8">
+        {/* Header with Brand & Mission */}
+        <div className="text-center max-w-3xl mx-auto space-y-3">
+          <div className="inline-flex items-center gap-1.5 bg-[#FF9900]/15 text-[#C7511F] text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Smart Shopping Discovery</span>
+          </div>
+
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
+            Findables &mdash; <span className="text-[#C7511F]">Find Better. Shop Smarter.</span>
           </h2>
-          <p className="text-sm text-slate-600 mt-2">
-            No sponsored brand scripts or fake reviews. Here is how and why products are selected for the Amazon curated community.
+
+          <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
+            Findables is your smart shopping discovery platform that brings quality products from multiple e-commerce websites into one place. We filter through countless listings to help you discover top-rated products, trusted choices, and value-for-money deals from platforms like <strong>Amazon</strong>, <strong>Flipkart</strong>, <strong>Myntra</strong>, <strong>Meesho</strong>, and more.
           </p>
         </div>
 
-        {/* 3 Core Trust Pillars */}
+        {/* Mission Highlight Banner */}
+        <div className="bg-gradient-to-r from-[#0d131a] via-[#1a2332] to-[#232F3E] text-white rounded-xl p-6 sm:p-8 shadow-md relative overflow-hidden border border-slate-800">
+          <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="space-y-2 max-w-2xl">
+              <span className="text-xs font-bold text-[#FF9900] uppercase tracking-wider block">
+                Our Mission
+              </span>
+              <h3 className="text-lg sm:text-xl font-extrabold text-white leading-snug">
+                Save your time, simplify your choices, and improve your shopping experience.
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                Instead of endlessly scrolling through products, find the ones worth considering with Findables.
+              </p>
+            </div>
+
+            <div className="shrink-0 bg-white/10 backdrop-blur-xs border border-white/20 p-4 rounded-xl text-center md:text-right">
+              <span className="text-[11px] font-bold text-[#FF9900] uppercase tracking-wider block">
+                The Findables Mantra
+              </span>
+              <div className="text-sm sm:text-base font-extrabold text-white mt-1">
+                Less searching. Better choices. Smarter shopping.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 3 Core Findables Pillars */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Pillar 1 */}
-          <div className="bg-[#F8FAFC] border border-slate-200 rounded-xl p-6 space-y-3">
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 space-y-3 hover:border-slate-300 transition-colors">
             <div className="w-10 h-10 rounded-lg bg-orange-100 text-[#FF7900] flex items-center justify-center font-bold">
-              01
+              <Clock className="w-5 h-5 text-[#FF7900]" />
             </div>
-            <h3 className="text-base font-bold text-[#0B1220]">
-              Useful Picks
-            </h3>
+            <h4 className="text-base font-bold text-slate-900">
+              Save Your Time
+            </h4>
             <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-              Every item is chosen for real practicality, long-term durability, and genuine value for money in Indian households, hostels, or work desks.
+              Skip hundreds of identical listings and confusing algorithms. We pre-screen products for genuine build quality, positive customer feedback, and everyday reliability.
             </p>
           </div>
 
           {/* Pillar 2 */}
-          <div className="bg-[#F8FAFC] border border-slate-200 rounded-xl p-6 space-y-3">
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 space-y-3 hover:border-slate-300 transition-colors">
             <div className="w-10 h-10 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center font-bold">
-              02
+              <Filter className="w-5 h-5 text-blue-700" />
             </div>
-            <h3 className="text-base font-bold text-[#0B1220]">
-              Honest Recommendations
-            </h3>
+            <h4 className="text-base font-bold text-slate-900">
+              Simplify Your Choices
+            </h4>
             <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-              Every card lists honest drawbacks, real trade-offs, and who the item is actually suited for—so you never regret an impulse buy.
+              Every curated card provides straight-to-the-point editorial summaries, verified price history insights, honest pros and cons, and clear recommendations.
             </p>
           </div>
 
           {/* Pillar 3 */}
-          <div className="bg-[#F8FAFC] border border-slate-200 rounded-xl p-6 space-y-3">
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 space-y-3 hover:border-slate-300 transition-colors">
             <div className="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
-              03
+              <CheckCircle2 className="w-5 h-5 text-emerald-700" />
             </div>
-            <h3 className="text-base font-bold text-[#0B1220]">
-              Transparent Affiliate Links
-            </h3>
+            <h4 className="text-base font-bold text-slate-900">
+              Multi-Platform Intelligence
+            </h4>
             <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-              When you purchase via my Amazon India links, Amazon pays a modest referral commission at zero extra cost to you. This keeps this platform independent and ad-free.
+              Universal architecture bringing together verified deals and festival offers across Amazon India, Flipkart, Myntra, and Meesho under a unified, trusted interface.
             </p>
           </div>
         </div>
 
-        {/* Visible Amazon Associates Disclosure Callout */}
-        <div className="mt-8 bg-slate-900 text-white rounded-xl p-5 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-start gap-3">
-            <ShieldCheck className="w-5 h-5 text-[#FF7900] shrink-0 mt-0.5" />
-            <div className="text-xs space-y-0.5">
-              <span className="font-bold text-slate-100">Official Amazon Associates Disclosure</span>
-              <p className="text-slate-300">
-                &ldquo;As an Amazon Associate I earn from qualifying purchases.&rdquo; Tracking Tag: <code className="text-[#FF7900] font-mono font-semibold">{AMAZON_ASSOCIATE_TAG}</code>
-              </p>
-            </div>
+        {/* Affiliate Disclosure Stripe */}
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-600">
+          <div className="flex items-center gap-2">
+            <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span>
+              Findables earns referral commissions from qualifying purchases made through partner links at <strong>zero extra cost to you</strong>.
+            </span>
           </div>
           <button
             onClick={onOpenDisclosure}
-            className="text-xs text-slate-300 hover:text-white underline decoration-slate-500 whitespace-nowrap self-start sm:self-center"
+            className="text-xs font-semibold text-[#007185] hover:text-[#C7511F] hover:underline whitespace-nowrap cursor-pointer shrink-0"
           >
-            Read Full Disclosure Statement &rarr;
+            Read Affiliate Disclosure &rarr;
           </button>
         </div>
       </div>

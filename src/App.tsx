@@ -2,6 +2,7 @@ import React, { useState, useEffect, useTransition } from 'react';
 import { Header } from './components/Header';
 import { ShopByCategories } from './components/ShopByCategories';
 import { TodaysDealsSection } from './components/TodaysDealsSection';
+import { TrustSection } from './components/TrustSection';
 import { Footer } from './components/Footer';
 import { ProductDetailModal } from './components/ProductDetailModal';
 import { WishlistDrawer } from './components/WishlistDrawer';
@@ -259,6 +260,9 @@ export default function App() {
           isWishlisted={isWishlisted}
           onNavigateCategory={navigate}
         />
+
+        {/* Section 4: Findables Mission & Brand Philosophy */}
+        <TrustSection onOpenDisclosure={() => setIsDisclosureOpen(true)} />
       </div>
     );
   };

@@ -105,11 +105,11 @@ export const PrivacyTermsModal: React.FC<ModalProps & { initialTab?: 'privacy' |
             <>
               <h3 className="font-bold text-slate-900 text-base">Your Privacy Matters</h3>
               <p>
-                At Amazon Deals, we respect your privacy. We do not collect personally identifiable information when you simply browse our product recommendations.
+                At Findables, we respect your privacy. We do not collect personally identifiable information when you simply browse our product recommendations.
               </p>
-              <h4 className="font-bold text-slate-800">1. Outbound Links</h4>
+              <h4 className="font-bold text-slate-800">1. Outbound Merchant Links</h4>
               <p>
-                When you click an Amazon deal link, you are transferred to Amazon.in. Amazon operates under its own Privacy Notice and Conditions of Use. We only record anonymous outbound click counts (product ID and timestamp) to understand which deals are popular.
+                When you click a merchant link, you are transferred to the partner platform (Amazon, Flipkart, etc.). Partner stores operate under their respective Privacy Notices and Conditions of Use. We only record anonymous outbound click counts to identify top trending products.
               </p>
               <h4 className="font-bold text-slate-800">2. Newsletter Subscriptions</h4>
               <p>
@@ -120,15 +120,15 @@ export const PrivacyTermsModal: React.FC<ModalProps & { initialTab?: 'privacy' |
             <>
               <h3 className="font-bold text-slate-900 text-base">Terms of Service</h3>
               <p>
-                By using this website, you agree to these terms. Amazon Deals is an independent content and recommendation website.
+                By using this website, you agree to these terms. Findables is an independent product discovery and recommendation website.
               </p>
               <h4 className="font-bold text-slate-800">1. Pricing &amp; Product Availability</h4>
               <p>
-                Product prices, stock levels, and discounts on Amazon change continuously. The price displayed on Amazon.in at the time of purchase will apply to the purchase of that product. We do not control or guarantee pricing or shipping times.
+                Product prices, stock levels, and discounts on partner platforms change continuously. The price displayed on the partner platform at the time of purchase will apply to the purchase of that product.
               </p>
               <h4 className="font-bold text-slate-800">2. Independent Status</h4>
               <p>
-                This website is not operated or endorsed by Amazon.com, Inc. or Amazon Seller Services Pvt Ltd. All trademarks and registered trademarks are the property of their respective owners.
+                Findables is an independent shopping discovery hub. All trademarks, logos, and brand names are the property of their respective owners.
               </p>
             </>
           )}

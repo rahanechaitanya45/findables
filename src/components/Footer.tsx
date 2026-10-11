@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShieldCheck, Lock, ExternalLink, Globe, ArrowUp } from 'lucide-react';
+import { Lock, Globe, ArrowUp } from 'lucide-react';
 import { AMAZON_ASSOCIATE_TAG } from '../services/affiliate';
 
 interface FooterProps {
@@ -32,213 +32,30 @@ export const Footer: React.FC<FooterProps> = ({
         <span>Back to top</span>
       </button>
 
-      {/* 2. 4-Column Navigation Grid */}
-      <div className="bg-[#232F3E] py-12 px-4 sm:px-8 border-b border-[#3a4553]">
-        <div className="max-w-[1400px] mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-slate-300">
-          {/* Column 1: Get to Know Us */}
-          <div className="space-y-3">
-            <h4 className="font-bold text-white text-sm tracking-tight">
-              Get to Know Us
-            </h4>
-            <ul className="space-y-2 text-xs">
-              <li>
-                <button
-                  onClick={onOpenDisclosure}
-                  className="hover:underline hover:text-white text-left transition-colors cursor-pointer"
-                >
-                  About Amazon Deals
-                </button>
-              </li>
-              <li>
-                <a
-                  href="https://www.amazon.in/about"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:underline hover:text-white transition-colors"
-                >
-                  Careers &amp; Culture
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://press.aboutamazon.in/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:underline hover:text-white transition-colors"
-                >
-                  Press Releases
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://www.amazon.science/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:underline hover:text-white transition-colors"
-                >
-                  Amazon Science
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#deals-section"
-                  className="hover:underline hover:text-white transition-colors"
-                >
-                  Weekly Editor Picks
-                </a>
-              </li>
-            </ul>
+      {/* 2. Findables Mission Statement Card */}
+      <div className="bg-[#1a2332] py-8 px-4 sm:px-8 border-b border-[#2d3a4d]">
+        <div className="max-w-[1400px] mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="space-y-2 max-w-3xl">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#FF9900] to-[#FF7900] flex items-center justify-center font-black text-slate-950 text-sm shadow-sm">
+                F
+              </div>
+              <span className="font-extrabold text-lg text-white">Findables</span>
+              <span className="text-[#FF9900] text-xs font-bold -ml-1">.in</span>
+              <span className="text-slate-500">·</span>
+              <span className="text-xs font-semibold text-slate-300">Find Better. Shop Smarter.</span>
+            </div>
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Findables is your smart shopping discovery platform that brings quality products from multiple e-commerce websites into one place. We filter through countless listings to help you discover top-rated products, trusted choices, and value-for-money deals from platforms like Amazon, Flipkart, Myntra, Meesho, and more.
+            </p>
+            <p className="text-xs text-slate-400 leading-relaxed">
+              Our mission is simple: <strong className="text-slate-200">save your time, simplify your choices, and improve your shopping experience.</strong> Instead of endlessly scrolling through products, find the ones worth considering with Findables.
+            </p>
           </div>
-
-          {/* Column 2: Connect with Us */}
-          <div className="space-y-3">
-            <h4 className="font-bold text-white text-sm tracking-tight">
-              Connect with Us
-            </h4>
-            <ul className="space-y-2 text-xs">
-              <li>
-                <a
-                  href="https://www.instagram.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:underline hover:text-white flex items-center gap-1 transition-colors"
-                >
-                  <span>Instagram Community</span>
-                  <ExternalLink className="w-3 h-3 text-[#FF9900]" />
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://www.facebook.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:underline hover:text-white transition-colors"
-                >
-                  Facebook Deals
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://twitter.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:underline hover:text-white transition-colors"
-                >
-                  Twitter / X Alerts
-                </a>
-              </li>
-              <li>
-                <button
-                  onClick={onOpenContact}
-                  className="hover:underline hover:text-white text-left transition-colors cursor-pointer"
-                >
-                  Suggest a Product Deal
-                </button>
-              </li>
-            </ul>
-          </div>
-
-          {/* Column 3: Make Money with Us */}
-          <div className="space-y-3">
-            <h4 className="font-bold text-white text-sm tracking-tight">
-              Make Money with Us
-            </h4>
-            <ul className="space-y-2 text-xs">
-              <li>
-                <a
-                  href="https://affiliate-program.amazon.in/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:underline hover:text-white transition-colors"
-                >
-                  Amazon Associates Program
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://sell.amazon.in/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:underline hover:text-white transition-colors"
-                >
-                  Sell on Amazon India
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://services.amazon.in/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:underline hover:text-white transition-colors"
-                >
-                  Protect and Build Your Brand
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://advertising.amazon.in/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:underline hover:text-white transition-colors"
-                >
-                  Advertise Your Products
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          {/* Column 4: Let Us Help You */}
-          <div className="space-y-3">
-            <h4 className="font-bold text-white text-sm tracking-tight">
-              Let Us Help You
-            </h4>
-            <ul className="space-y-2 text-xs">
-              <li>
-                <button
-                  onClick={onOpenDisclosure}
-                  className="hover:underline hover:text-white text-left transition-colors cursor-pointer"
-                >
-                  Affiliate Disclosure
-                </button>
-              </li>
-              <li>
-                <a
-                  href="https://www.amazon.in/gp/help/customer/display.html?nodeId=201083470"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:underline hover:text-white transition-colors"
-                >
-                  100% Purchase Protection
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://www.amazon.in/returns"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:underline hover:text-white transition-colors"
-                >
-                  Returns &amp; Replacements
-                </a>
-              </li>
-              <li>
-                <button
-                  onClick={onOpenContact}
-                  className="hover:underline hover:text-white text-left transition-colors cursor-pointer"
-                >
-                  Help &amp; Customer Support
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={onOpenAdmin}
-                  className="hover:underline hover:text-[#FF9900] text-slate-400 flex items-center gap-1 transition-colors cursor-pointer"
-                >
-                  <Lock className="w-3 h-3 text-[#FF9900]" />
-                  <span>Admin Dashboard</span>
-                </button>
-              </li>
-            </ul>
+          <div className="text-center md:text-right shrink-0 bg-slate-900/60 p-4 rounded-xl border border-slate-700/60">
+            <span className="text-[11px] font-bold text-[#FF9900] uppercase tracking-wider block">Findables Promise</span>
+            <div className="text-sm font-extrabold text-white mt-0.5">Less searching. Better choices. Smarter shopping.</div>
+            <div className="text-[10px] text-slate-400 mt-1">Multi-platform discovery hub</div>
           </div>
         </div>
       </div>
@@ -246,10 +63,17 @@ export const Footer: React.FC<FooterProps> = ({
       {/* 3. Middle Brand & Country Stripe */}
       <div className="bg-[#232F3E] py-6 px-4 border-b border-[#3a4553]">
         <div className="max-w-[1400px] mx-auto flex flex-col sm:flex-row items-center justify-center gap-6">
-          <div className="flex items-baseline cursor-pointer" onClick={scrollToTop}>
-            <span className="font-extrabold text-2xl tracking-tighter text-white">amazon</span>
-            <span className="text-[#FF9900] text-xs font-bold ml-0.5">.in</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-[#FF9900] ml-1" />
+          <div className="flex items-center gap-2 cursor-pointer" onClick={scrollToTop}>
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#FF9900] to-[#FF7900] flex items-center justify-center font-black text-slate-950 text-base shadow-sm">
+              F
+            </div>
+            <div className="flex flex-col text-left">
+              <div className="flex items-baseline">
+                <span className="font-extrabold text-xl tracking-tight text-white leading-none">Findables</span>
+                <span className="text-[#FF9900] text-xs font-bold ml-0.5">.in</span>
+              </div>
+              <span className="text-[9px] text-slate-400 font-medium">Find Better. Shop Smarter.</span>
+            </div>
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-3 text-xs">
@@ -270,7 +94,7 @@ export const Footer: React.FC<FooterProps> = ({
         </div>
       </div>
 
-      {/* 4. Amazon Associates Mandatory Disclaimer */}
+      {/* 4. Associates & Multi-Merchant Disclosure */}
       <div className="bg-[#131921] py-8 px-4 sm:px-8 text-[11px] text-slate-400">
         <div className="max-w-[1400px] mx-auto space-y-4">
           <div className="p-4 rounded-lg bg-[#1a2332] border border-slate-700/60 text-slate-300">
@@ -278,10 +102,10 @@ export const Footer: React.FC<FooterProps> = ({
               &ldquo;As an Amazon Associate I earn from qualifying purchases.&rdquo;
             </p>
             <p className="text-slate-300 leading-relaxed">
-              This website is a participant in the Amazon Associates Program, an affiliate advertising program designed to provide a means for sites to earn advertising fees by advertising and linking to Amazon India (<code>amazon.in</code>). Certain content that appears on this site comes from Amazon Services LLC or its affiliates. This content is provided &lsquo;as is&rsquo; and is subject to change or removal at any time.
+              Findables participates in multiple e-commerce affiliate programs including Amazon Associates, Flipkart, and partner affiliate networks designed to provide a means to earn fees by linking to official merchant destinations. Product details, prices, and availability are subject to change.
             </p>
             <p className="mt-2 text-slate-400 font-mono text-[10px]">
-              Amazon Associates ID: {AMAZON_ASSOCIATE_TAG} · Outbound Marketplace: amazon.in
+              Amazon Associates ID: {AMAZON_ASSOCIATE_TAG} · Supported Merchants: Amazon India, Flipkart, Myntra, Meesho
             </p>
           </div>
 
@@ -299,11 +123,18 @@ export const Footer: React.FC<FooterProps> = ({
             <button onClick={onOpenContact} className="hover:underline hover:text-white cursor-pointer">
               Contact Us
             </button>
+            <button
+              onClick={onOpenAdmin}
+              className="hover:underline hover:text-white text-slate-400 flex items-center gap-1 cursor-pointer"
+            >
+              <Lock className="w-3 h-3 text-[#FF9900]" />
+              <span>Admin</span>
+            </button>
           </div>
 
           {/* Copyright & Disclaimer */}
           <div className="text-center text-[11px] text-slate-500 pt-1">
-            &copy; {new Date().getFullYear()} Amazon Deals &amp; Curated Finds. Independent product discovery and affiliate portal. Amazon, Amazon.in, and the Amazon logo are trademarks of Amazon.com, Inc. or its affiliates.
+            &copy; {new Date().getFullYear()} Findables — Find Better. Shop Smarter. Independent multi-platform product discovery. Amazon, Flipkart, Myntra, Meesho and their respective logos are trademarks of their respective owners.
           </div>
         </div>
       </div>

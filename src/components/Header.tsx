@@ -113,11 +113,20 @@ export const Header: React.FC<HeaderProps> = ({
               }}
               className="flex items-center gap-0.5 px-2 py-1.5 rounded hover:ring-1 hover:ring-white transition-all cursor-pointer group text-left"
             >
-              <div className="flex items-baseline">
-                <span className="font-extrabold text-2xl tracking-tighter text-white">amazon</span>
-                <span className="text-[#FF9900] text-xs font-bold ml-0.5">.in</span>
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#FF9900] to-[#FF7900] flex items-center justify-center font-black text-slate-950 text-base shadow-sm group-hover:scale-105 transition-transform">
+                  F
+                </div>
+                <div className="flex flex-col">
+                  <div className="flex items-baseline">
+                    <span className="font-extrabold text-xl sm:text-2xl tracking-tight text-white leading-none">Findables</span>
+                    <span className="text-[#FF9900] text-xs font-bold ml-0.5">.in</span>
+                  </div>
+                  <span className="text-[9px] sm:text-[10px] text-slate-300 font-medium tracking-tight hidden sm:block mt-0.5">
+                    Find Better. Shop Smarter.
+                  </span>
+                </div>
               </div>
-              <div className="w-1.5 h-1.5 rounded-full bg-[#FF9900] ml-1 group-hover:scale-125 transition-transform" />
             </button>
           </div>
 
@@ -162,7 +171,7 @@ export const Header: React.FC<HeaderProps> = ({
                   setIsSearchFocused(true);
                 }}
                 onFocus={() => setIsSearchFocused(true)}
-                placeholder="Search Amazon Deals, Fashion, Sneakers &amp; Clothing..."
+                placeholder="Search Findables for top products, brands, deals..."
                 className="flex-1 px-3 text-xs sm:text-sm text-slate-900 bg-white focus:outline-none"
               />
 
