@@ -63,20 +63,20 @@ export const ShoppingEventCard: React.FC<ShoppingEventCardProps> = ({
       />
 
       <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 h-full">
-        <div className="space-y-2 max-w-2xl flex-1">
+        <div className="space-y-2 max-w-2xl flex-1 min-w-0">
           {/* Top Tag & Status Badges */}
           <div className="flex items-center gap-2 flex-wrap">
             <div
-              className={`inline-flex items-center gap-1.5 ${event.theme.badgeBg} text-[11px] font-extrabold px-2.5 py-0.5 rounded shadow-xs uppercase tracking-wider`}
+              className={`inline-flex items-center gap-1.5 ${event.theme.badgeBg} text-[10px] sm:text-[11px] font-extrabold px-2 sm:px-2.5 py-0.5 rounded shadow-xs uppercase tracking-wider`}
             >
-              <Sparkles className="w-3.5 h-3.5" />
+              <Sparkles className="w-3 sm:w-3.5 h-3 sm:h-3.5 shrink-0" />
               <span>{event.badgeText}</span>
             </div>
             {getStatusBadge()}
           </div>
 
           {/* Event Title */}
-          <h3 className="text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight text-white leading-tight">
+          <h3 className="text-lg min-[400px]:text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight text-white leading-tight break-words">
             {event.title}
           </h3>
 
@@ -86,22 +86,22 @@ export const ShoppingEventCard: React.FC<ShoppingEventCardProps> = ({
           </p>
 
           {/* Date & Tracking Metadata */}
-          <div className="flex items-center gap-3 pt-1 text-[11px] text-slate-300 flex-wrap">
+          <div className="flex items-center gap-2 sm:gap-3 pt-1 text-[10px] sm:text-[11px] text-slate-300 flex-wrap">
             {event.startDate && (
               <span className="flex items-center gap-1 text-slate-300 font-medium">
-                <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                <Calendar className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                 <span>{event.startDate}</span>
               </span>
             )}
 
             {event.affiliateTracked ? (
               <span className="flex items-center gap-1 text-emerald-400 font-semibold">
-                <ShieldCheck className="w-3.5 h-3.5" />
+                <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
                 Verified Affiliate Link
               </span>
             ) : (
               <span className="flex items-center gap-1 text-blue-300 font-medium">
-                <CheckCircle2 className="w-3.5 h-3.5" />
+                <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
                 Official Store Portal
               </span>
             )}
@@ -118,13 +118,13 @@ export const ShoppingEventCard: React.FC<ShoppingEventCardProps> = ({
         </div>
 
         {/* Action CTAs */}
-        <div className="flex flex-col sm:flex-row md:flex-col gap-2 shrink-0 md:min-w-[210px]">
+        <div className="flex flex-col sm:flex-row md:flex-col gap-2 shrink-0 md:min-w-[210px] w-full md:w-auto pt-1 sm:pt-0">
           <a
             href={event.destinationUrl}
             target="_blank"
             rel="noopener noreferrer"
             onClick={onExplore}
-            className={`inline-flex items-center justify-center gap-2 ${event.theme.buttonBg} ${event.theme.buttonHover} active:scale-98 ${event.theme.buttonText} font-extrabold text-xs sm:text-sm px-5 py-2.5 rounded-lg border ${event.theme.buttonBorder} shadow-sm transition-all cursor-pointer group`}
+            className={`inline-flex items-center justify-center gap-2 ${event.theme.buttonBg} ${event.theme.buttonHover} active:scale-98 ${event.theme.buttonText} font-extrabold text-xs sm:text-sm px-4 sm:px-5 py-2.5 rounded-lg border ${event.theme.buttonBorder} shadow-sm transition-all cursor-pointer group min-h-[44px] text-center`}
             title={`Open ${event.title} in a new tab`}
           >
             <span>{event.ctaText}</span>
@@ -136,11 +136,11 @@ export const ShoppingEventCard: React.FC<ShoppingEventCardProps> = ({
               href={event.secondaryUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-1.5 bg-slate-800/80 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-4 py-2 rounded-lg border border-slate-700 transition-colors cursor-pointer"
+              className="inline-flex items-center justify-center gap-1.5 bg-slate-800/80 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-4 py-2 rounded-lg border border-slate-700 transition-colors cursor-pointer min-h-[40px] text-center"
               title={event.secondaryCtaText || 'Explore More Offers'}
             >
-              <span>{event.secondaryCtaText || 'Explore More Offers'}</span>
-              <ExternalLink className="w-3.5 h-3.5 shrink-0 text-slate-400" />
+              <span>{event.secondaryCtaText || 'Explore Top Offers'}</span>
+              <ExternalLink className="w-3.5 h-3.5 shrink-0" />
             </a>
           )}
         </div>

@@ -466,17 +466,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/75 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 animate-fadeIn">
-      <div className="bg-white rounded-2xl max-w-5xl w-full max-h-[92vh] overflow-y-auto shadow-2xl border border-slate-200 flex flex-col">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/75 backdrop-blur-xs flex items-center justify-center p-2 sm:p-6 animate-fadeIn">
+      <div className="bg-white rounded-xl sm:rounded-2xl max-w-5xl w-full max-h-[94vh] overflow-y-auto shadow-2xl border border-slate-200 flex flex-col">
         {/* Header */}
-        <div className="sticky top-0 bg-[#131921] text-white px-6 py-4 flex items-center justify-between border-b border-slate-800 z-10">
+        <div className="sticky top-0 bg-[#131921] text-white px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between border-b border-slate-800 z-10 shrink-0">
           <div className="flex items-center gap-2">
-            <Lock className="w-5 h-5 text-[#FF9900]" />
-            <h2 className="font-bold text-base sm:text-lg">Findables — Admin Dashboard</h2>
+            <Lock className="w-4 sm:w-5 h-4 sm:h-5 text-[#FF9900]" />
+            <h2 className="font-bold text-sm sm:text-base sm:text-lg">Findables — Admin Dashboard</h2>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-white rounded-lg transition-colors cursor-pointer"
+            className="p-2 text-slate-400 hover:text-white rounded-lg transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
+            aria-label="Close admin dashboard"
           >
             <X className="w-5 h-5" />
           </button>
@@ -522,7 +523,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           /* Logged In Dashboard */
           <div className="flex-1 flex flex-col">
             {/* Tabs Bar */}
-            <div className="bg-slate-100 border-b border-slate-200 px-6 flex items-center gap-2 overflow-x-auto">
+            <div className="bg-slate-100 border-b border-slate-200 px-3 sm:px-6 flex items-center gap-1 sm:gap-2 overflow-x-auto scrollbar-none shrink-0">
               <button
                 onClick={() => setActiveTab('overview')}
                 className={`py-3 px-3 text-xs font-bold border-b-2 transition-colors whitespace-nowrap cursor-pointer ${

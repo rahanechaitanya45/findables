@@ -95,37 +95,37 @@ export const Footer: React.FC<FooterProps> = ({
       </div>
 
       {/* 4. Associates & Multi-Merchant Disclosure */}
-      <div className="bg-[#131921] py-8 px-4 sm:px-8 text-[11px] text-slate-400">
+      <div className="bg-[#131921] py-6 sm:py-8 px-3.5 sm:px-8 text-[11px] text-slate-400 pb-safe">
         <div className="max-w-[1400px] mx-auto space-y-4">
-          <div className="p-4 rounded-lg bg-[#1a2332] border border-slate-700/60 text-slate-300">
+          <div className="p-3.5 sm:p-4 rounded-lg bg-[#1a2332] border border-slate-700/60 text-slate-300">
             <p className="font-bold text-[#FF9900] mb-1 text-xs">
               &ldquo;As an Amazon Associate I earn from qualifying purchases.&rdquo;
             </p>
             <p className="text-slate-300 leading-relaxed">
               Findables participates in multiple e-commerce affiliate programs including Amazon Associates, Flipkart, and partner affiliate networks designed to provide a means to earn fees by linking to official merchant destinations. Product details, prices, and availability are subject to change.
             </p>
-            <p className="mt-2 text-slate-400 font-mono text-[10px]">
+            <p className="mt-2 text-slate-400 font-mono text-[10px] break-words">
               Amazon Associates ID: {AMAZON_ASSOCIATE_TAG} · Supported Merchants: Amazon India, Flipkart, Myntra, Meesho
             </p>
           </div>
 
           {/* Legal Links */}
-          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-slate-300 pt-2">
-            <button onClick={onOpenPrivacy} className="hover:underline hover:text-white cursor-pointer">
+          <div className="flex flex-wrap items-center justify-center gap-x-4 sm:gap-x-6 gap-y-2 text-xs text-slate-300 pt-2">
+            <button onClick={onOpenPrivacy} className="hover:underline hover:text-white cursor-pointer min-h-[36px] flex items-center px-1">
               Privacy Notice
             </button>
-            <button onClick={onOpenTerms} className="hover:underline hover:text-white cursor-pointer">
+            <button onClick={onOpenTerms} className="hover:underline hover:text-white cursor-pointer min-h-[36px] flex items-center px-1">
               Conditions of Use &amp; Sale
             </button>
-            <button onClick={onOpenDisclosure} className="hover:underline hover:text-white cursor-pointer">
+            <button onClick={onOpenDisclosure} className="hover:underline hover:text-white cursor-pointer min-h-[36px] flex items-center px-1">
               Affiliate Disclosure
             </button>
-            <button onClick={onOpenContact} className="hover:underline hover:text-white cursor-pointer">
+            <button onClick={onOpenContact} className="hover:underline hover:text-white cursor-pointer min-h-[36px] flex items-center px-1">
               Contact Us
             </button>
             <button
               onClick={onOpenAdmin}
-              className="hover:underline hover:text-white text-slate-400 flex items-center gap-1 cursor-pointer"
+              className="hover:underline hover:text-white text-slate-400 flex items-center gap-1 cursor-pointer min-h-[36px] px-1"
             >
               <Lock className="w-3 h-3 text-[#FF9900]" />
               <span>Admin</span>
@@ -133,7 +133,7 @@ export const Footer: React.FC<FooterProps> = ({
           </div>
 
           {/* Copyright & Disclaimer */}
-          <div className="text-center text-[11px] text-slate-500 pt-1">
+          <div className="text-center text-[10px] sm:text-[11px] text-slate-500 pt-1 leading-relaxed">
             &copy; {new Date().getFullYear()} Findables — Find Better. Shop Smarter. Independent multi-platform product discovery. Amazon, Flipkart, Myntra, Meesho and their respective logos are trademarks of their respective owners.
           </div>
         </div>

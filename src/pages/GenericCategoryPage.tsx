@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { Category, Product } from '../types';
 import { ProductCard } from '../components/ProductCard';
+import { BackButton } from '../components/BackButton';
 import { getGreatIndianFestivalUrl } from '../services/affiliate';
 
 interface GenericCategoryPageProps {
@@ -59,19 +60,22 @@ export const GenericCategoryPage: React.FC<GenericCategoryPageProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Breadcrumb Navigation */}
-      <nav className="flex items-center gap-1.5 text-xs text-slate-500">
-        <button
-          onClick={() => onNavigate('/')}
-          className="hover:text-slate-900 transition-colors cursor-pointer"
-        >
-          Home
-        </button>
-        <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-        <span className="text-slate-900 font-semibold">Categories</span>
-        <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-        <span className="text-[#007185] font-bold">{category.name}</span>
-      </nav>
+      {/* Top Navigation Bar with Back Button */}
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <BackButton label="Back to Home" fallbackPath="/" onNavigate={onNavigate} />
+        <nav className="flex items-center gap-1.5 text-xs text-slate-500">
+          <button
+            onClick={() => onNavigate('/')}
+            className="hover:text-slate-900 transition-colors cursor-pointer"
+          >
+            Home
+          </button>
+          <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+          <span className="text-slate-900 font-semibold">Categories</span>
+          <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+          <span className="text-[#007185] font-bold">{category.name}</span>
+        </nav>
+      </div>
 
       {/* Header Banner */}
       <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs p-6 sm:p-8 space-y-4">
@@ -121,7 +125,7 @@ export const GenericCategoryPage: React.FC<GenericCategoryPageProps> = ({
                 id="sort-select"
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as any)}
-                className="bg-slate-50 border border-slate-200 rounded px-2.5 py-1 text-slate-800 text-xs font-semibold cursor-pointer outline-none focus:border-[#FF9900]"
+                className="bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-800 text-xs font-semibold cursor-pointer outline-none focus:border-[#FF9900] min-h-[38px]"
               >
                 <option value="featured">Featured / Curated</option>
                 <option value="price_low">Price: Low to High</option>
@@ -132,7 +136,7 @@ export const GenericCategoryPage: React.FC<GenericCategoryPageProps> = ({
           </div>
 
           {/* Product Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4">
             {sortedProducts.map((prod) => (
               <ProductCard
                 key={prod.id}

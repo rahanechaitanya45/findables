@@ -42,16 +42,17 @@ export const LocationModal: React.FC<LocationModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl max-w-md w-full overflow-hidden shadow-2xl border border-slate-200">
-        <div className="bg-[#131921] text-white px-5 py-3.5 flex items-center justify-between border-b border-slate-800">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+      <div className="bg-white rounded-xl sm:rounded-2xl max-w-md w-full overflow-hidden shadow-2xl border border-slate-200">
+        <div className="bg-[#131921] text-white px-4 sm:px-5 py-3 sm:py-3.5 flex items-center justify-between border-b border-slate-800">
           <div className="flex items-center gap-2">
             <MapPin className="w-4 h-4 text-[#FF9900]" />
             <h3 className="font-bold text-sm">Choose your delivery location</h3>
           </div>
           <button
             onClick={onClose}
-            className="p-1 text-slate-400 hover:text-white rounded transition-colors"
+            className="p-2 text-slate-400 hover:text-white rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+            aria-label="Close location modal"
           >
             <X className="w-5 h-5" />
           </button>

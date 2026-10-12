@@ -41,21 +41,22 @@ export const WishlistDrawer: React.FC<WishlistDrawerProps> = ({
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-white rounded-lg transition-colors cursor-pointer"
+            className="p-2 text-slate-400 hover:text-white rounded-lg transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center"
+            aria-label="Close cart"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Product Items List */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-3">
+        <div className="flex-1 overflow-y-auto p-3.5 sm:p-4 space-y-3">
           {savedProducts.length > 0 ? (
             savedProducts.map((p) => {
               const affiliateUrl = generateAmazonAffiliateUrl(p.asin, 'wishlist_drawer');
               return (
                 <div
                   key={p.id}
-                  className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex gap-3 items-center justify-between hover:border-slate-300 transition-colors"
+                  className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex gap-3 items-center justify-between hover:border-slate-300 transition-colors min-w-0"
                 >
                   <div
                     onClick={() => {
@@ -101,7 +102,7 @@ export const WishlistDrawer: React.FC<WishlistDrawerProps> = ({
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={() => recordAffiliateClick(p, 'wishlist_item')}
-                      className="px-2.5 py-1.5 bg-[#FFD814] hover:bg-[#F7CA00] text-slate-900 font-bold text-xs rounded-lg border border-[#FCD200] flex items-center gap-1 shadow-xs cursor-pointer select-none"
+                      className="px-2.5 py-1.5 bg-[#FFD814] hover:bg-[#F7CA00] active:bg-[#F0B800] text-slate-900 font-bold text-xs rounded-lg border border-[#FCD200] flex items-center justify-center gap-1 shadow-xs cursor-pointer select-none min-h-[38px]"
                       title="Open on Amazon.in"
                     >
                       <span>Buy</span>
@@ -109,10 +110,11 @@ export const WishlistDrawer: React.FC<WishlistDrawerProps> = ({
                     </a>
                     <button
                       onClick={() => onRemoveFromWishlist(p.id)}
-                      className="p-1.5 text-slate-400 hover:text-rose-600 rounded cursor-pointer"
+                      className="p-2 text-slate-400 hover:text-rose-600 rounded cursor-pointer min-h-[38px] min-w-[38px] flex items-center justify-center"
                       title="Remove from saved deals"
+                      aria-label={`Remove ${p.title} from wishlist`}
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
                 </div>
@@ -129,7 +131,7 @@ export const WishlistDrawer: React.FC<WishlistDrawerProps> = ({
               </p>
               <button
                 onClick={onClose}
-                className="px-4 py-2 bg-[#131921] text-white text-xs font-bold rounded-lg hover:bg-slate-800 transition-colors cursor-pointer"
+                className="px-5 py-2.5 bg-[#131921] text-white text-xs font-bold rounded-lg hover:bg-slate-800 transition-colors cursor-pointer min-h-[44px]"
               >
                 Explore Marketplace Deals
               </button>
@@ -139,7 +141,7 @@ export const WishlistDrawer: React.FC<WishlistDrawerProps> = ({
 
         {/* Footer / Summary */}
         {savedProducts.length > 0 && (
-          <div className="p-4 bg-slate-50 border-t border-slate-200 space-y-3">
+          <div className="p-4 bg-slate-50 border-t border-slate-200 space-y-3 pb-safe">
             <div className="flex items-baseline justify-between text-xs">
               <span className="text-slate-600">Subtotal ({savedProducts.length} items):</span>
               <span className="text-base font-extrabold text-slate-900 font-mono tabular-nums">
@@ -157,7 +159,7 @@ export const WishlistDrawer: React.FC<WishlistDrawerProps> = ({
             <div className="flex gap-2">
               <button
                 onClick={onClearWishlist}
-                className="py-2 px-3 text-xs text-slate-600 hover:text-slate-900 border border-slate-300 rounded-lg hover:bg-white"
+                className="py-2.5 px-3 text-xs text-slate-600 hover:text-slate-900 border border-slate-300 rounded-lg hover:bg-white min-h-[44px] cursor-pointer"
               >
                 Clear All
               </button>
@@ -165,7 +167,7 @@ export const WishlistDrawer: React.FC<WishlistDrawerProps> = ({
                 href={`https://www.amazon.in/?tag=amazonde0941f-21`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 py-2.5 px-4 bg-[#FFA41C] hover:bg-[#FA8900] text-slate-900 font-bold text-xs rounded-lg text-center flex items-center justify-center gap-1.5 shadow-sm"
+                className="flex-1 py-2.5 px-4 bg-[#FFA41C] hover:bg-[#FA8900] active:bg-[#F08000] text-slate-900 font-bold text-xs rounded-lg text-center flex items-center justify-center gap-1.5 shadow-sm min-h-[44px]"
               >
                 <span>Continue on Amazon India</span>
                 <ExternalLink className="w-3.5 h-3.5" />

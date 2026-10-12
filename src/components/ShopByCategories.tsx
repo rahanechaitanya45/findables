@@ -57,7 +57,7 @@ export const ShopByCategories: React.FC<ShopByCategoriesProps> = ({
       </div>
 
       {/* Category Tiles Grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-4">
         {categories.map((cat) => {
           const Icon = iconMap[cat.iconName] || Tag;
           const isFashion = cat.id === 'fashion';
@@ -66,7 +66,7 @@ export const ShopByCategories: React.FC<ShopByCategoriesProps> = ({
             <div
               key={cat.id}
               onClick={() => onNavigate(`/categories/${cat.id}`)}
-              className={`group relative rounded-xl p-3.5 sm:p-4 border transition-all duration-200 flex flex-col justify-between cursor-pointer ${
+              className={`group relative rounded-xl p-3 sm:p-4 border transition-all duration-200 flex flex-col justify-between cursor-pointer min-w-0 ${
                 isFashion
                   ? 'bg-gradient-to-b from-amber-50/70 to-white border-amber-300/80 shadow-xs hover:border-[#FF9900] hover:shadow-md'
                   : 'bg-slate-50/60 hover:bg-white border-slate-200 hover:border-slate-300 hover:shadow-xs'

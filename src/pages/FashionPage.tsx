@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { Product } from '../types';
 import { ProductCard } from '../components/ProductCard';
+import { BackButton } from '../components/BackButton';
 import { getGreatIndianFestivalUrl } from '../services/affiliate';
 
 interface FashionPageProps {
@@ -90,19 +91,22 @@ export const FashionPage: React.FC<FashionPageProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Breadcrumb Navigation */}
-      <nav className="flex items-center gap-1.5 text-xs text-slate-500">
-        <button
-          onClick={() => onNavigate('/')}
-          className="hover:text-slate-900 transition-colors cursor-pointer"
-        >
-          Home
-        </button>
-        <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-        <span className="text-slate-900 font-semibold">Categories</span>
-        <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-        <span className="text-[#007185] font-bold">Fashion</span>
-      </nav>
+      {/* Navigation Top Bar with Back Button */}
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <BackButton label="Back to Home" fallbackPath="/" onNavigate={onNavigate} />
+        <nav className="flex items-center gap-1.5 text-xs text-slate-500">
+          <button
+            onClick={() => onNavigate('/')}
+            className="hover:text-slate-900 transition-colors cursor-pointer"
+          >
+            Home
+          </button>
+          <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+          <span className="text-slate-900 font-semibold">Categories</span>
+          <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+          <span className="text-[#007185] font-bold">Fashion</span>
+        </nav>
+      </div>
 
       {/* Fashion Hero Section */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#131921] via-[#232F3E] to-[#131921] text-white p-6 sm:p-8 border border-slate-800 shadow-md">
@@ -207,8 +211,8 @@ export const FashionPage: React.FC<FashionPageProps> = ({
       </div>
 
       {/* Search & Filter Toolbar */}
-      <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs p-4 space-y-3">
-        <div className="flex flex-col sm:flex-row gap-3 items-center justify-between">
+      <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs p-3.5 sm:p-4 space-y-3">
+        <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
           {/* Search Field */}
           <div className="relative w-full sm:w-72">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -217,12 +221,13 @@ export const FashionPage: React.FC<FashionPageProps> = ({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search fashion by brand, title..."
-              className="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF9900] focus:border-transparent"
+              className="w-full pl-9 pr-8 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FF9900] focus:border-transparent min-h-[40px]"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-600"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-600 p-1 min-h-[32px] min-w-[32px] flex items-center justify-center cursor-pointer"
+                aria-label="Clear search"
               >
                 ✕
               </button>
@@ -230,12 +235,12 @@ export const FashionPage: React.FC<FashionPageProps> = ({
           </div>
 
           {/* Subcategory & Gender & Sort Chips */}
-          <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto justify-end">
+          <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto justify-start sm:justify-end">
             {/* SubCategory Tabs */}
-            <div className="flex bg-slate-100 p-0.5 rounded-lg text-xs font-semibold">
+            <div className="flex bg-slate-100 p-0.5 rounded-lg text-xs font-semibold overflow-x-auto scrollbar-none w-full sm:w-auto">
               <button
                 onClick={() => setSelectedSubCategory('all')}
-                className={`px-3 py-1 rounded-md transition-colors cursor-pointer ${
+                className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-md transition-colors cursor-pointer min-h-[36px] text-center ${
                   selectedSubCategory === 'all' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -243,7 +248,7 @@ export const FashionPage: React.FC<FashionPageProps> = ({
               </button>
               <button
                 onClick={() => setSelectedSubCategory('clothes')}
-                className={`px-3 py-1 rounded-md transition-colors cursor-pointer ${
+                className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-md transition-colors cursor-pointer min-h-[36px] text-center ${
                   selectedSubCategory === 'clothes' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -251,7 +256,7 @@ export const FashionPage: React.FC<FashionPageProps> = ({
               </button>
               <button
                 onClick={() => setSelectedSubCategory('sneakers')}
-                className={`px-3 py-1 rounded-md transition-colors cursor-pointer ${
+                className={`flex-1 sm:flex-initial px-3 py-1.5 rounded-md transition-colors cursor-pointer min-h-[36px] text-center ${
                   selectedSubCategory === 'sneakers' ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600 hover:text-slate-900'
                 }`}
               >
@@ -263,7 +268,7 @@ export const FashionPage: React.FC<FashionPageProps> = ({
             <select
               value={selectedGender}
               onChange={(e) => setSelectedGender(e.target.value as any)}
-              className="text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-700 font-medium focus:outline-none cursor-pointer"
+              className="flex-1 sm:flex-initial text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-700 font-medium focus:outline-none cursor-pointer min-h-[38px]"
             >
               <option value="all">All Genders</option>
               <option value="men">Men</option>
@@ -274,7 +279,7 @@ export const FashionPage: React.FC<FashionPageProps> = ({
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as any)}
-              className="text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-700 font-medium focus:outline-none cursor-pointer"
+              className="flex-1 sm:flex-initial text-xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1.5 text-slate-700 font-medium focus:outline-none cursor-pointer min-h-[38px]"
             >
               <option value="recommended">Sort: Featured</option>
               <option value="price_asc">Price: Low to High</option>
@@ -302,7 +307,7 @@ export const FashionPage: React.FC<FashionPageProps> = ({
         </div>
 
         {filteredProducts.length === 0 ? (
-          <div className="bg-white rounded-xl border border-slate-200 p-10 text-center space-y-4">
+          <div className="bg-white rounded-xl border border-slate-200 p-6 sm:p-10 text-center space-y-4">
             <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
               <Tag className="w-6 h-6" />
             </div>
@@ -326,7 +331,7 @@ export const FashionPage: React.FC<FashionPageProps> = ({
                     setSelectedSubCategory('all');
                     setSelectedGender('all');
                   }}
-                  className="bg-slate-900 text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-slate-800 cursor-pointer"
+                  className="bg-slate-900 text-white text-xs font-bold px-4 py-2.5 rounded-lg hover:bg-slate-800 cursor-pointer min-h-[44px]"
                 >
                   Reset Filters
                 </button>
@@ -335,7 +340,7 @@ export const FashionPage: React.FC<FashionPageProps> = ({
                   href={getGreatIndianFestivalUrl()}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 bg-[#FFD814] text-slate-950 font-extrabold text-xs px-5 py-2.5 rounded-lg hover:bg-[#F7CA00] cursor-pointer shadow-xs border border-[#FCD200]"
+                  className="inline-flex items-center gap-1.5 bg-[#FFD814] text-slate-950 font-extrabold text-xs px-5 py-2.5 rounded-lg hover:bg-[#F7CA00] cursor-pointer shadow-xs border border-[#FCD200] min-h-[44px]"
                 >
                   <span>Explore Amazon Great Indian Festival</span>
                   <ExternalLink className="w-3.5 h-3.5" />
@@ -344,7 +349,7 @@ export const FashionPage: React.FC<FashionPageProps> = ({
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4">
             {filteredProducts.map((product) => (
               <ProductCard
                 key={product.id}

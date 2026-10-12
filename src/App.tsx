@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useTransition } from 'react';
+import React, { useState, useEffect, useTransition, useMemo } from 'react';
 import { Header } from './components/Header';
 import { ShopByCategories } from './components/ShopByCategories';
 import { TodaysDealsSection } from './components/TodaysDealsSection';
@@ -8,6 +8,9 @@ import { ProductDetailModal } from './components/ProductDetailModal';
 import { WishlistDrawer } from './components/WishlistDrawer';
 import { LocationModal } from './components/LocationModal';
 import { AdminDashboard } from './components/AdminDashboard';
+import { Toast } from './components/Toast';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { BackButton } from './components/BackButton';
 import {
   AffiliateDisclosureModal,
   PrivacyTermsModal,
@@ -19,6 +22,7 @@ import { SneakersPage } from './pages/SneakersPage';
 import { GenericCategoryPage } from './pages/GenericCategoryPage';
 import { Product, Category } from './types';
 import { INITIAL_PRODUCTS, CATEGORIES } from './data/mockProducts';
+import { AlertCircle, Home, ShoppingBag } from 'lucide-react';
 
 export default function App() {
   const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
@@ -77,11 +81,26 @@ export default function App() {
   // Listen to browser Back/Forward (popstate)
   useEffect(() => {
     const handlePopState = () => {
-      setCurrentPath(window.location.pathname || '/');
+      const newPath = window.location.pathname || '/';
+      setCurrentPath(newPath);
+
+      // Handle product route via back/forward
+      if (newPath.startsWith('/product/') || newPath.startsWith('/products/')) {
+        const id = newPath.replace(/^\/products?\//, '').replace(/\/+$/, '');
+        const found = products.find(
+          (p) => p.id === id || p.asin.toLowerCase() === id.toLowerCase()
+        );
+        if (found) {
+          setSelectedProduct(found);
+        }
+      } else if (!window.location.hash.startsWith('#product=')) {
+        // If navigated back to a non-product page, close modal
+        setSelectedProduct(null);
+      }
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
+  }, [products]);
 
   // Persist delivery location
   useEffect(() => {
@@ -107,15 +126,12 @@ export default function App() {
       const res = await fetch('/api/products?limit=100');
       if (res.ok) {
         const data = await res.json();
-        if (data && Array.isArray(data.items)) {
+        if (data && Array.isArray(data.items) && data.items.length > 0) {
           setProducts(data.items);
-        } else {
-          setProducts([]);
         }
       }
     } catch {
-      // Fallback to INITIAL_PRODUCTS
-      setProducts(INITIAL_PRODUCTS);
+      // Retain INITIAL_PRODUCTS fallback
     }
   };
 
@@ -123,7 +139,31 @@ export default function App() {
     loadProducts();
   }, []);
 
-  // Listen to hash changes for deep modal links
+  // Handle direct product URL on initial load and refresh
+  useEffect(() => {
+    const path = window.location.pathname || '/';
+    if (path.startsWith('/product/') || path.startsWith('/products/')) {
+      const prodId = path.replace(/^\/products?\//, '').replace(/\/+$/, '');
+      const found = products.find(
+        (p) => p.id === prodId || p.asin.toLowerCase() === prodId.toLowerCase()
+      );
+      if (found) {
+        setSelectedProduct(found);
+      } else {
+        // Fetch specific product by ID or ASIN from server if not found in list
+        fetch(`/api/products/${prodId}`)
+          .then((res) => (res.ok ? res.json() : null))
+          .then((data) => {
+            if (data?.product) {
+              setSelectedProduct(data.product);
+            }
+          })
+          .catch(() => {});
+      }
+    }
+  }, [products]);
+
+  // Listen to hash changes for deep modal links & backwards compatibility
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash;
@@ -149,12 +189,24 @@ export default function App() {
 
   const handleSelectProduct = (product: Product) => {
     setSelectedProduct(product);
-    window.location.hash = `product=${product.id}`;
+    // Update path to /product/:id for clean, shareable URLs
+    const newPath = `/product/${product.id}`;
+    if (currentPath !== newPath) {
+      window.history.pushState(null, '', newPath);
+      setCurrentPath(newPath);
+    }
   };
 
   const handleCloseProductModal = () => {
     setSelectedProduct(null);
-    if (window.location.hash.startsWith('#product=')) {
+    if (currentPath.startsWith('/product/') || currentPath.startsWith('/products/')) {
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        window.history.replaceState(null, '', '/');
+        setCurrentPath('/');
+      }
+    } else if (window.location.hash.startsWith('#product=')) {
       window.history.replaceState(null, '', window.location.pathname + window.location.search);
     }
   };
@@ -188,7 +240,8 @@ export default function App() {
     // Normalizing clean path without trailing slashes
     const path = currentPath.replace(/\/+$/, '') || '/';
 
-    if (path === '/categories/fashion/clothes') {
+    // 1. Fashion Clothes Subcategory: /categories/fashion/clothes or /category/fashion/clothes
+    if (path === '/categories/fashion/clothes' || path === '/category/fashion/clothes') {
       return (
         <ClothesPage
           products={products}
@@ -200,7 +253,8 @@ export default function App() {
       );
     }
 
-    if (path === '/categories/fashion/sneakers') {
+    // 2. Fashion Sneakers Subcategory: /categories/fashion/sneakers or /category/fashion/sneakers
+    if (path === '/categories/fashion/sneakers' || path === '/category/fashion/sneakers') {
       return (
         <SneakersPage
           products={products}
@@ -212,7 +266,8 @@ export default function App() {
       );
     }
 
-    if (path === '/categories/fashion') {
+    // 3. Fashion Primary Hub: /categories/fashion or /category/fashion
+    if (path === '/categories/fashion' || path === '/category/fashion') {
       return (
         <FashionPage
           products={products}
@@ -224,10 +279,26 @@ export default function App() {
       );
     }
 
-    // Generic category routes: /categories/:categoryId
-    if (path.startsWith('/categories/')) {
-      const catId = path.replace('/categories/', '');
-      const foundCategory = categories.find((c) => c.id === catId);
+    // 4. Dedicated Today's Deals Page: /deals, /todays-deals, /deals/today
+    if (path === '/deals' || path === '/todays-deals' || path === '/deals/today') {
+      return (
+        <TodaysDealsSection
+          onSelectProduct={handleSelectProduct}
+          onToggleWishlist={toggleWishlist}
+          isWishlisted={isWishlisted}
+          onNavigateCategory={navigate}
+          onNavigate={navigate}
+          isStandalonePage={true}
+        />
+      );
+    }
+
+    // 5. Generic category routes: /categories/:categoryId or /category/:categoryId
+    if (path.startsWith('/categories/') || path.startsWith('/category/')) {
+      const catId = path.replace(/^\/categories?\//, '');
+      const foundCategory = categories.find(
+        (c) => c.id.toLowerCase() === catId.toLowerCase()
+      );
       if (foundCategory) {
         return (
           <GenericCategoryPage
@@ -242,154 +313,214 @@ export default function App() {
       }
     }
 
-    // Default: Clean, Reorganized Homepage
-    return (
-      <div className="space-y-6">
-        {/* Section 2: Shop by Categories (Top of Homepage, below Header) */}
-        <div id="categories-section">
-          <ShopByCategories
-            categories={categories}
-            onNavigate={navigate}
+    // 6. Direct product route: /product/:id or /products/:id
+    if (path.startsWith('/product/') || path.startsWith('/products/')) {
+      const prodId = path.replace(/^\/products?\//, '');
+      const found = products.find(
+        (p) => p.id === prodId || p.asin.toLowerCase() === prodId.toLowerCase()
+      );
+      if (found) {
+        return (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between pb-1">
+              <BackButton label="Back to Homepage" fallbackPath="/" onNavigate={navigate} />
+            </div>
+            {/* Show background collections while PDP modal is presented */}
+            <div id="categories-section">
+              <ShopByCategories categories={categories} onNavigate={navigate} />
+            </div>
+            <TodaysDealsSection
+              onSelectProduct={handleSelectProduct}
+              onToggleWishlist={toggleWishlist}
+              isWishlisted={isWishlisted}
+              onNavigateCategory={navigate}
+            />
+          </div>
+        );
+      }
+    }
+
+    // 7. Homepage (Default)
+    if (path === '/' || path === '/home') {
+      return (
+        <div className="space-y-4 sm:space-y-6">
+          {/* Section 2: Shop by Categories */}
+          <div id="categories-section">
+            <ShopByCategories
+              categories={categories}
+              onNavigate={navigate}
+            />
+          </div>
+
+          {/* Section 3: Today's Deals */}
+          <TodaysDealsSection
+            onSelectProduct={handleSelectProduct}
+            onToggleWishlist={toggleWishlist}
+            isWishlisted={isWishlisted}
+            onNavigateCategory={navigate}
           />
+
+          {/* Section 4: Findables Mission & Brand Philosophy */}
+          <TrustSection onOpenDisclosure={() => setIsDisclosureOpen(true)} />
         </div>
+      );
+    }
 
-        {/* Section 3: Today's Deals (Directly below Shop by Categories) */}
-        <TodaysDealsSection
-          onSelectProduct={handleSelectProduct}
-          onToggleWishlist={toggleWishlist}
-          isWishlisted={isWishlisted}
-          onNavigateCategory={navigate}
-        />
-
-        {/* Section 4: Findables Mission & Brand Philosophy */}
-        <TrustSection onOpenDisclosure={() => setIsDisclosureOpen(true)} />
+    // 8. 404 Fallback with Clean Recovery
+    return (
+      <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-8 text-center max-w-lg mx-auto my-12 space-y-4">
+        <div className="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto border border-amber-200/60">
+          <AlertCircle className="w-8 h-8" />
+        </div>
+        <div className="space-y-1">
+          <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
+            Page Not Found
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-500">
+            The page you're looking for doesn't exist or has moved. Explore our top curated deals below.
+          </p>
+        </div>
+        <div className="pt-2 flex justify-center">
+          <button
+            onClick={() => navigate('/')}
+            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-slate-900 bg-[#FFD814] hover:bg-[#F7CA00] rounded-xl border border-[#FCD200] transition-colors cursor-pointer min-h-[40px]"
+          >
+            <Home className="w-3.5 h-3.5" />
+            <span>Return to Homepage</span>
+          </button>
+        </div>
       </div>
     );
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#EAEDED] text-[#0F1111]">
-      {/* Section 1: Compact, Responsive Header */}
-      <Header
-        onSearch={handleSearch}
-        searchQuery={searchQuery}
-        selectedCategory={selectedCategory}
-        onSelectCategory={(catId) => {
-          setSelectedCategory(catId);
-          if (catId === 'fashion') {
-            navigate('/categories/fashion');
-          } else if (catId !== 'all') {
-            navigate(`/categories/${catId}`);
-          } else {
-            navigate('/');
-          }
-        }}
-        categories={categories}
-        products={products}
-        onSelectProduct={handleSelectProduct}
-        deliveryLocation={deliveryLocation}
-        onOpenLocationModal={() => setIsLocationModalOpen(true)}
-        onOpenWishlist={() => setIsWishlistOpen(true)}
-        wishlistCount={wishlist.length}
-        onOpenAdmin={() => setIsAdminOpen(true)}
-        onOpenDisclosure={() => setIsDisclosureOpen(true)}
-        onNavigate={navigate}
-      />
+    <ErrorBoundary>
+      <div className="min-h-screen flex flex-col bg-[#EAEDED] text-[#0F1111]">
+        {/* Toast Notifications */}
+        <Toast />
 
-      {/* Main Content Area */}
-      <main className="flex-1 max-w-[1500px] w-full mx-auto px-2 sm:px-4 py-4">
-        {renderCurrentView()}
-      </main>
-
-      {/* Section 4: Compact, Clean Footer with Affiliate Disclosure & Navigation */}
-      <Footer
-        onOpenDisclosure={() => setIsDisclosureOpen(true)}
-        onOpenPrivacy={() => {
-          setPrivacyTab('privacy');
-          setIsPrivacyOpen(true);
-        }}
-        onOpenTerms={() => {
-          setPrivacyTab('terms');
-          setIsPrivacyOpen(true);
-        }}
-        onOpenContact={() => setIsContactOpen(true)}
-        onOpenAdmin={() => setIsAdminOpen(true)}
-      />
-
-      {/* Product Detail Modal */}
-      {selectedProduct && (
-        <ProductDetailModal
-          product={selectedProduct}
-          onClose={handleCloseProductModal}
+        {/* Section 1: Compact, Responsive Header */}
+        <Header
+          onSearch={handleSearch}
+          searchQuery={searchQuery}
+          selectedCategory={selectedCategory}
+          onSelectCategory={(catId) => {
+            setSelectedCategory(catId);
+            if (catId === 'fashion') {
+              navigate('/categories/fashion');
+            } else if (catId !== 'all') {
+              navigate(`/categories/${catId}`);
+            } else {
+              navigate('/');
+            }
+          }}
+          categories={categories}
+          products={products}
           onSelectProduct={handleSelectProduct}
-          allProducts={products}
-          onToggleWishlist={toggleWishlist}
-          isWishlisted={isWishlisted(selectedProduct.id)}
           deliveryLocation={deliveryLocation}
+          onOpenLocationModal={() => setIsLocationModalOpen(true)}
+          onOpenWishlist={() => setIsWishlistOpen(true)}
+          wishlistCount={wishlist.length}
+          onOpenAdmin={() => setIsAdminOpen(true)}
+          onOpenDisclosure={() => setIsDisclosureOpen(true)}
+          onNavigate={navigate}
         />
-      )}
 
-      {/* Wishlist / Deals Drawer */}
-      <WishlistDrawer
-        isOpen={isWishlistOpen}
-        onClose={() => setIsWishlistOpen(false)}
-        savedProducts={wishlist}
-        onSelectProduct={(p) => {
-          setIsWishlistOpen(false);
-          handleSelectProduct(p);
-        }}
-        onRemoveFromWishlist={(id) => {
-          const item = products.find((p) => p.id === id);
-          if (item) toggleWishlist(item);
-          else setWishlist((prev) => prev.filter((p) => p.id !== id));
-        }}
-        onClearWishlist={() => setWishlist([])}
-      />
+        {/* Main Content Area */}
+        <main className="flex-1 max-w-[1500px] w-full mx-auto px-2.5 sm:px-4 py-3 sm:py-4">
+          {renderCurrentView()}
+        </main>
 
-      {/* Delivery Location Modal */}
-      <LocationModal
-        isOpen={isLocationModalOpen}
-        onClose={() => setIsLocationModalOpen(false)}
-        currentLocation={deliveryLocation}
-        onSelectLocation={(loc) => setDeliveryLocation(loc)}
-      />
+        {/* Section 4: Compact, Clean Footer with Affiliate Disclosure & Navigation */}
+        <Footer
+          onOpenDisclosure={() => setIsDisclosureOpen(true)}
+          onOpenPrivacy={() => {
+            setPrivacyTab('privacy');
+            setIsPrivacyOpen(true);
+          }}
+          onOpenTerms={() => {
+            setPrivacyTab('terms');
+            setIsPrivacyOpen(true);
+          }}
+          onOpenContact={() => setIsContactOpen(true)}
+          onOpenAdmin={() => setIsAdminOpen(true)}
+        />
 
-      {/* Admin Dashboard */}
-      <AdminDashboard
-        isOpen={isAdminOpen}
-        onClose={() => {
-          setIsAdminOpen(false);
-          if (window.location.hash === '#admin') {
-            window.history.replaceState(null, '', window.location.pathname);
-          }
-        }}
-        categories={categories}
-        onProductUpdated={loadProducts}
-      />
+        {/* Product Detail Modal */}
+        {selectedProduct && (
+          <ProductDetailModal
+            product={selectedProduct}
+            onClose={handleCloseProductModal}
+            onSelectProduct={handleSelectProduct}
+            allProducts={products}
+            onToggleWishlist={toggleWishlist}
+            isWishlisted={isWishlisted(selectedProduct.id)}
+            deliveryLocation={deliveryLocation}
+          />
+        )}
 
-      {/* Affiliate Disclosure Modal */}
-      <AffiliateDisclosureModal
-        isOpen={isDisclosureOpen}
-        onClose={() => {
-          setIsDisclosureOpen(false);
-          if (window.location.hash === '#disclosure') {
-            window.history.replaceState(null, '', window.location.pathname);
-          }
-        }}
-      />
+        {/* Wishlist / Deals Drawer */}
+        <WishlistDrawer
+          isOpen={isWishlistOpen}
+          onClose={() => setIsWishlistOpen(false)}
+          savedProducts={wishlist}
+          onSelectProduct={(p) => {
+            setIsWishlistOpen(false);
+            handleSelectProduct(p);
+          }}
+          onRemoveFromWishlist={(id) => {
+            const item = products.find((p) => p.id === id);
+            if (item) toggleWishlist(item);
+            else setWishlist((prev) => prev.filter((p) => p.id !== id));
+          }}
+          onClearWishlist={() => setWishlist([])}
+        />
 
-      {/* Privacy & Terms Modal */}
-      <PrivacyTermsModal
-        isOpen={isPrivacyOpen}
-        onClose={() => setIsPrivacyOpen(false)}
-        initialTab={privacyTab}
-      />
+        {/* Delivery Location Modal */}
+        <LocationModal
+          isOpen={isLocationModalOpen}
+          onClose={() => setIsLocationModalOpen(false)}
+          currentLocation={deliveryLocation}
+          onSelectLocation={(loc) => setDeliveryLocation(loc)}
+        />
 
-      {/* Contact Modal */}
-      <ContactModal
-        isOpen={isContactOpen}
-        onClose={() => setIsContactOpen(false)}
-      />
-    </div>
+        {/* Admin Dashboard */}
+        <AdminDashboard
+          isOpen={isAdminOpen}
+          onClose={() => {
+            setIsAdminOpen(false);
+            if (window.location.hash === '#admin') {
+              window.history.replaceState(null, '', window.location.pathname);
+            }
+          }}
+          categories={categories}
+          onProductUpdated={loadProducts}
+        />
+
+        {/* Affiliate Disclosure Modal */}
+        <AffiliateDisclosureModal
+          isOpen={isDisclosureOpen}
+          onClose={() => {
+            setIsDisclosureOpen(false);
+            if (window.location.hash === '#disclosure') {
+              window.history.replaceState(null, '', window.location.pathname);
+            }
+          }}
+        />
+
+        {/* Privacy & Terms Modal */}
+        <PrivacyTermsModal
+          isOpen={isPrivacyOpen}
+          onClose={() => setIsPrivacyOpen(false)}
+          initialTab={privacyTab}
+        />
+
+        {/* Contact Modal */}
+        <ContactModal
+          isOpen={isContactOpen}
+          onClose={() => setIsContactOpen(false)}
+        />
+      </div>
+    </ErrorBoundary>
   );
 }

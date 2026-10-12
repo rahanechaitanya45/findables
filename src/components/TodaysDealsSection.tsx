@@ -11,6 +11,7 @@ import {
 import { Product, ShoppingEvent } from '../types';
 import { ProductCard } from './ProductCard';
 import { ShoppingEventCard } from './ShoppingEventCard';
+import { BackButton } from './BackButton';
 import {
   getGreatIndianFestivalUrl,
   getAmazonTodaysDealsUrl,
@@ -24,6 +25,8 @@ interface TodaysDealsSectionProps {
   onToggleWishlist?: (product: Product) => void;
   isWishlisted?: (productId: string) => boolean;
   onNavigateCategory?: (categoryPath: string) => void;
+  onNavigate?: (path: string) => void;
+  isStandalonePage?: boolean;
 }
 
 const DEFAULT_EVENTS: ShoppingEvent[] = [
@@ -92,6 +95,8 @@ export const TodaysDealsSection: React.FC<TodaysDealsSectionProps> = ({
   onToggleWishlist,
   isWishlisted,
   onNavigateCategory,
+  onNavigate,
+  isStandalonePage = false,
 }) => {
   const [deals, setDeals] = useState<Product[]>([]);
   const [events, setEvents] = useState<ShoppingEvent[]>(DEFAULT_EVENTS);
@@ -168,19 +173,40 @@ export const TodaysDealsSection: React.FC<TodaysDealsSectionProps> = ({
 
   return (
     <section id="todays-deals-section" className="space-y-4 select-none">
+      {/* Standalone Deals Page Navigation Bar */}
+      {isStandalonePage && (
+        <div className="flex items-center justify-between gap-3 pb-1 flex-wrap">
+          <BackButton
+            label="Back to Home"
+            fallbackPath="/"
+            onNavigate={(p) => (onNavigate ? onNavigate(p) : onNavigateCategory ? onNavigateCategory(p) : window.history.back())}
+          />
+          <nav className="flex items-center gap-1.5 text-xs text-slate-500">
+            <button
+              onClick={() => (onNavigate ? onNavigate('/') : onNavigateCategory ? onNavigateCategory('/') : null)}
+              className="hover:text-slate-900 transition-colors cursor-pointer"
+            >
+              Home
+            </button>
+            <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+            <span className="text-[#007185] font-bold">Today's Deals</span>
+          </nav>
+        </div>
+      )}
+
       {/* 1. Festive Special Events (Amazon Great Indian Festival & Flipkart Big Billion Days) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
         {events.map((event) => (
           <ShoppingEventCard key={event.id} event={event} />
         ))}
       </div>
 
       {/* 2. Today's Deals Header & Subtitle */}
-      <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs p-4 sm:p-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+      <div className="bg-white rounded-xl border border-slate-200/90 shadow-xs p-3.5 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 sm:pb-4 border-b border-slate-100">
           <div>
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-[#CC0C39] text-white flex items-center justify-center shadow-xs">
+              <div className="w-8 h-8 rounded-lg bg-[#CC0C39] text-white flex items-center justify-center shadow-xs shrink-0">
                 <Flame className="w-4 h-4" />
               </div>
               <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
@@ -192,13 +218,13 @@ export const TodaysDealsSection: React.FC<TodaysDealsSectionProps> = ({
             </p>
           </div>
 
-          {/* Quick Filter Chips */}
-          <div className="flex items-center gap-1.5 flex-wrap">
+          {/* Quick Filter Chips (Horizontally scrollable on mobile, wrapping on sm+) */}
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 scrollbar-none sm:flex-wrap">
             <button
               onClick={() => setActiveFilter('all')}
-              className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
+              className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors cursor-pointer whitespace-nowrap min-h-[36px] flex items-center shrink-0 ${
                 activeFilter === 'all'
-                  ? 'bg-[#131921] text-white'
+                  ? 'bg-[#131921] text-white shadow-xs'
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               }`}
             >
@@ -206,9 +232,9 @@ export const TodaysDealsSection: React.FC<TodaysDealsSectionProps> = ({
             </button>
             <button
               onClick={() => setActiveFilter('clothes')}
-              className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
+              className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors cursor-pointer whitespace-nowrap min-h-[36px] flex items-center shrink-0 ${
                 activeFilter === 'clothes'
-                  ? 'bg-[#131921] text-white'
+                  ? 'bg-[#131921] text-white shadow-xs'
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               }`}
             >
@@ -216,9 +242,9 @@ export const TodaysDealsSection: React.FC<TodaysDealsSectionProps> = ({
             </button>
             <button
               onClick={() => setActiveFilter('sneakers')}
-              className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
+              className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors cursor-pointer whitespace-nowrap min-h-[36px] flex items-center shrink-0 ${
                 activeFilter === 'sneakers'
-                  ? 'bg-[#131921] text-white'
+                  ? 'bg-[#131921] text-white shadow-xs'
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               }`}
             >
@@ -226,9 +252,9 @@ export const TodaysDealsSection: React.FC<TodaysDealsSectionProps> = ({
             </button>
             <button
               onClick={() => setActiveFilter('under999')}
-              className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
+              className={`text-xs font-bold px-3 py-1.5 rounded-lg transition-colors cursor-pointer whitespace-nowrap min-h-[36px] flex items-center shrink-0 ${
                 activeFilter === 'under999'
-                  ? 'bg-[#131921] text-white'
+                  ? 'bg-[#131921] text-white shadow-xs'
                   : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
               }`}
             >
@@ -238,15 +264,15 @@ export const TodaysDealsSection: React.FC<TodaysDealsSectionProps> = ({
         </div>
 
         {/* 3. Content States: Loading, Error, Empty, or Product Grid */}
-        <div className="pt-4">
+        <div className="pt-3.5 sm:pt-4">
           {isLoading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4">
               {[...Array(8)].map((_, i) => (
                 <div
                   key={i}
-                  className="bg-slate-50 border border-slate-200/80 rounded-lg p-3 sm:p-4 animate-pulse space-y-3"
+                  className="bg-slate-50 border border-slate-200/80 rounded-xl p-2.5 sm:p-4 animate-pulse space-y-3"
                 >
-                  <div className="aspect-square bg-slate-200 rounded-md" />
+                  <div className="aspect-square bg-slate-200 rounded-lg" />
                   <div className="h-3 bg-slate-200 rounded w-1/3" />
                   <div className="h-4 bg-slate-200 rounded w-3/4" />
                   <div className="h-5 bg-slate-200 rounded w-1/2" />
@@ -265,14 +291,14 @@ export const TodaysDealsSection: React.FC<TodaysDealsSectionProps> = ({
               </div>
               <button
                 onClick={fetchDeals}
-                className="inline-flex items-center gap-1.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold px-4 py-2 rounded-lg cursor-pointer transition-colors shadow-xs"
+                className="inline-flex items-center gap-1.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold px-4 py-2.5 rounded-lg cursor-pointer transition-colors shadow-xs min-h-[44px]"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
                 <span>Retry Loading Deals</span>
               </button>
             </div>
           ) : filteredDeals.length === 0 ? (
-            <div className="bg-slate-50 border border-slate-200 rounded-xl p-8 text-center space-y-3">
+            <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 sm:p-8 text-center space-y-3">
               <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
                 <Tag className="w-6 h-6" />
               </div>
@@ -286,11 +312,11 @@ export const TodaysDealsSection: React.FC<TodaysDealsSectionProps> = ({
                     : "Try switching back to 'All Deals' or visit the Great Indian Festival event page on Amazon India."}
                 </p>
               </div>
-              <div className="flex justify-center gap-2 pt-1">
+              <div className="flex flex-wrap justify-center gap-2 pt-1">
                 {deals.length > 0 ? (
                   <button
                     onClick={() => setActiveFilter('all')}
-                    className="bg-slate-900 text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-slate-800 cursor-pointer"
+                    className="bg-slate-900 text-white text-xs font-bold px-4 py-2.5 rounded-lg hover:bg-slate-800 cursor-pointer min-h-[44px]"
                   >
                     Show All Deals
                   </button>
@@ -299,7 +325,7 @@ export const TodaysDealsSection: React.FC<TodaysDealsSectionProps> = ({
                   href={festivalUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 bg-[#FFD814] text-slate-950 font-extrabold text-xs px-5 py-2.5 rounded-lg hover:bg-[#F7CA00] cursor-pointer shadow-xs border border-[#FCD200]"
+                  className="inline-flex items-center gap-1.5 bg-[#FFD814] text-slate-950 font-extrabold text-xs px-5 py-2.5 rounded-lg hover:bg-[#F7CA00] cursor-pointer shadow-xs border border-[#FCD200] min-h-[44px]"
                 >
                   <span>Explore Great Indian Festival on Amazon</span>
                   <ExternalLink className="w-3.5 h-3.5" />
@@ -307,7 +333,7 @@ export const TodaysDealsSection: React.FC<TodaysDealsSectionProps> = ({
               </div>
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4">
               {filteredDeals.map((product) => (
                 <ProductCard
                   key={product.id}
@@ -328,18 +354,18 @@ export const TodaysDealsSection: React.FC<TodaysDealsSectionProps> = ({
             <span className="text-slate-500">
               Looking for more fashion finds? Explore our dedicated Clothes and Sneakers collections.
             </span>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-wrap">
               <button
                 onClick={() => onNavigateCategory('/categories/fashion/clothes')}
-                className="font-bold text-[#007185] hover:text-[#C7511F] hover:underline cursor-pointer inline-flex items-center gap-1"
+                className="font-bold text-[#007185] hover:text-[#C7511F] hover:underline cursor-pointer inline-flex items-center gap-1 min-h-[36px]"
               >
                 <span>Browse Clothes</span>
                 <ChevronRight className="w-3 h-3" />
               </button>
-              <span>·</span>
+              <span className="hidden sm:inline">·</span>
               <button
                 onClick={() => onNavigateCategory('/categories/fashion/sneakers')}
-                className="font-bold text-[#007185] hover:text-[#C7511F] hover:underline cursor-pointer inline-flex items-center gap-1"
+                className="font-bold text-[#007185] hover:text-[#C7511F] hover:underline cursor-pointer inline-flex items-center gap-1 min-h-[36px]"
               >
                 <span>Browse Sneakers</span>
                 <ChevronRight className="w-3 h-3" />

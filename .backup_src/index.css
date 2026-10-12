@@ -1,0 +1,46 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background-color: #EAEDED;
+    color: #0F1111;
+    overflow-x: hidden;
+  }
+}
+
+/* Custom Amazon-styled scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: #EAEDED;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #A6A6A6;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #767676;
+}
+
+/* Tabular figures for aligned prices */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Amazon Deal Price Styling */
+.amazon-price-currency {
+  font-size: 0.65em;
+  vertical-align: 0.35em;
+  font-weight: 500;
+}
+
+.amazon-price-fraction {
+  font-size: 0.65em;
+  vertical-align: 0.35em;
+}
