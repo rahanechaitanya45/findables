@@ -375,6 +375,64 @@ export class AmazonUrlResolverService {
   } {
     const t = (title || '').toLowerCase();
 
+    // Check Skincare & Beauty
+    if (
+      t.includes('cleanser') ||
+      t.includes('serum') ||
+      t.includes('niacinamide') ||
+      t.includes('vitamin c') ||
+      t.includes('cetaphil') ||
+      t.includes('minimalist') ||
+      t.includes('moisturising') ||
+      t.includes('moisturizer') ||
+      t.includes('sunscreen') ||
+      t.includes('skincare')
+    ) {
+      return {
+        category: 'beauty-personal-care',
+        categoryName: 'Beauty & Personal Care',
+        editorialOneLiner: `Dermatologist-recommended skincare formulation with verified active ingredients.`,
+        bestSuitedFor: 'Daily morning and evening skincare regimens across diverse skin types',
+        pros: ['Non-comedogenic and fragrance-free formulation', 'Clinically verified active concentrations'],
+      };
+    }
+
+    // Check Bags & Backpacks
+    if (
+      t.includes('backpack') ||
+      t.includes('bag') ||
+      t.includes('skybags') ||
+      t.includes('safari') ||
+      t.includes('laptop bag')
+    ) {
+      return {
+        category: 'student-essentials',
+        categoryName: 'Student Essentials',
+        editorialOneLiner: `Ergonomic laptop backpack with multi-compartment capacity and water-resistant finish.`,
+        bestSuitedFor: 'College students, daily office commuters, and business travel',
+        pros: ['Dedicated padded laptop sleeve', 'Ergonomic breathable back padding and shoulder straps'],
+      };
+    }
+
+    // Check Electronics & Tech
+    if (
+      t.includes('samsung') ||
+      t.includes('phone') ||
+      t.includes('galaxy') ||
+      t.includes('earbuds') ||
+      t.includes('headphones') ||
+      t.includes('tablet') ||
+      t.includes('charger')
+    ) {
+      return {
+        category: 'tech-electronics',
+        categoryName: 'Tech & Electronics',
+        editorialOneLiner: `Reliable consumer electronics from an industry-leading manufacturer with official warranty.`,
+        bestSuitedFor: 'Tech enthusiasts, mobile productivity, and daily media streaming',
+        pros: ['Official brand manufacturer warranty in India', 'High reliability and performance standards'],
+      };
+    }
+
     // Check Sneakers
     if (
       t.includes('sneaker') ||
@@ -383,9 +441,10 @@ export class AmazonUrlResolverService {
       t.includes('fleetfly') ||
       t.includes('smashic') ||
       t.includes('soulzie') ||
+      t.includes('vacfast') ||
       t.includes('court curves')
     ) {
-      const isRunning = t.includes('running') || t.includes('air-fleetfly');
+      const isRunning = t.includes('running') || t.includes('air-fleetfly') || t.includes('vacfast');
       const isUnisex = t.includes('unisex') || t.includes('court curves') || t.includes('ferrari');
       return {
         category: 'fashion',
@@ -393,7 +452,7 @@ export class AmazonUrlResolverService {
         subCategory: 'sneakers',
         sneakerType: isRunning ? 'running' : 'casual',
         gender: isUnisex ? 'unisex' : 'men',
-        editorialOneLiner: `Comfortable and versatile ${brand || 'sportstyle'} sneakers designed for daily wear.`,
+        editorialOneLiner: `Comfortable and versatile ${brand || 'sportstyle'} footwear designed for daily wear.`,
         bestSuitedFor: isRunning
           ? 'Everyday jogging, workouts, and brisk city walking'
           : 'Casual outings, campus wear, and weekend styling',
@@ -401,14 +460,17 @@ export class AmazonUrlResolverService {
       };
     }
 
-    // Check Clothes (Shirts, T-shirts, etc.)
+    // Check Clothes (Shirts, T-shirts, Batman, The Souled Store, Bewakoof, etc.)
     if (
       t.includes('shirt') ||
       t.includes('t-shirt') ||
       t.includes('tee') ||
       t.includes('cotton blend') ||
       t.includes('pure cotton') ||
-      t.includes('slim fit')
+      t.includes('slim fit') ||
+      t.includes('souled store') ||
+      t.includes('bewakoof') ||
+      t.includes('batman')
     ) {
       return {
         category: 'fashion',
@@ -416,9 +478,9 @@ export class AmazonUrlResolverService {
         subCategory: 'clothes',
         clothingType: 't-shirts-shirts',
         gender: 'men',
-        editorialOneLiner: `Breathable and sharp ${brand || 'casual'} shirt with tailored slim fit cut.`,
-        bestSuitedFor: 'Office casuals, weekend dinners, and smart everyday layering',
-        pros: ['Breathable cotton fabric', 'Structured collar and modern slim profile'],
+        editorialOneLiner: `Breathable and sharp ${brand || 'casual'} apparel with tailored modern cut.`,
+        bestSuitedFor: 'Everyday campus style, casual hangouts, and smart layering',
+        pros: ['Breathable cotton fabric', 'Durable stitch quality and fade-resistant print'],
       };
     }
 

@@ -49,7 +49,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [adminKey, setAdminKey] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authError, setAuthError] = useState('');
-  const [activeTab, setActiveTab] = useState<'overview' | 'products' | 'merchants' | 'events' | 'paapi' | 'subscribers' | 'checklist'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'products' | 'bulk' | 'merchants' | 'events' | 'paapi' | 'subscribers' | 'checklist'>('overview');
 
   // Stats & data
   const [stats, setStats] = useState<any>(null);
@@ -94,6 +94,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [formError, setFormError] = useState('');
   const [formSuccess, setFormSuccess] = useState('');
   const [catalogFilter, setCatalogFilter] = useState('all');
+
+  // Bulk Import State
+  const [bulkUrlsInput, setBulkUrlsInput] = useState('');
+  const [bulkResolving, setBulkResolving] = useState(false);
+  const [bulkImporting, setBulkImporting] = useState(false);
+  const [bulkResolvedItems, setBulkResolvedItems] = useState<any[]>([]);
+  const [bulkSummary, setBulkSummary] = useState<any>(null);
+  const [bulkFeedback, setBulkFeedback] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
 
   // PA-API Test lookup
   const [testAsin, setTestAsin] = useState('B09N3ZNHTY');
@@ -463,6 +471,102 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     }
   };
 
+  // Bulk URL Resolution
+  const handleResolveBulkUrls = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setBulkFeedback(null);
+    const rawLines = bulkUrlsInput
+      .split('\n')
+      .map((l) => l.trim())
+      .filter((l) => l.length > 0);
+
+    if (rawLines.length === 0) {
+      setBulkFeedback({ type: 'error', message: 'Please enter at least one Amazon URL or ASIN.' });
+      return;
+    }
+
+    setBulkResolving(true);
+    try {
+      const res = await fetch('/api/admin/urls/resolve', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-key': adminKey,
+        },
+        body: JSON.stringify({ urls: rawLines }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setBulkResolvedItems(data.results || []);
+        setBulkSummary(data.summary || null);
+        setBulkFeedback({
+          type: 'success',
+          message: `Processed ${data.results?.length} items (${data.summary?.ready} ready to import, ${data.summary?.duplicates} duplicates, ${data.summary?.failed} failed).`,
+        });
+      } else {
+        setBulkFeedback({
+          type: 'error',
+          message: data.error || 'Failed to resolve URLs.',
+        });
+      }
+    } catch (err: any) {
+      setBulkFeedback({
+        type: 'error',
+        message: err.message || 'Network error resolving Amazon URLs.',
+      });
+    } finally {
+      setBulkResolving(false);
+    }
+  };
+
+  // Bulk Import Confirm
+  const handleImportBulkUrls = async () => {
+    const readyItems = bulkResolvedItems.filter((i) => i.status === 'ready' || i.status === 'review_required');
+    if (readyItems.length === 0) {
+      setBulkFeedback({ type: 'error', message: 'No valid products ready to import.' });
+      return;
+    }
+
+    setBulkImporting(true);
+    setBulkFeedback(null);
+    try {
+      const res = await fetch('/api/admin/urls/import', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-admin-key': adminKey,
+        },
+        body: JSON.stringify({ items: readyItems }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setBulkFeedback({
+          type: 'success',
+          message: data.message || `Successfully imported ${data.importedCount} products into the Findables catalog!`,
+        });
+        setBulkResolvedItems([]);
+        setBulkSummary(null);
+        setBulkUrlsInput('');
+        loadDashboardData(adminKey);
+        onProductUpdated();
+      } else {
+        setBulkFeedback({
+          type: 'error',
+          message: data.error || 'Bulk import failed.',
+        });
+      }
+    } catch (err: any) {
+      setBulkFeedback({
+        type: 'error',
+        message: err.message || 'Network error during bulk import.',
+      });
+    } finally {
+      setBulkImporting(false);
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -543,6 +647,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 }`}
               >
                 📦 Product Catalog ({products.length})
+              </button>
+              <button
+                onClick={() => setActiveTab('bulk')}
+                className={`py-3 px-3 text-xs font-bold border-b-2 transition-colors whitespace-nowrap cursor-pointer ${
+                  activeTab === 'bulk'
+                    ? 'border-[#FF7900] text-[#0B1220]'
+                    : 'border-transparent text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                ⚡ Bulk Import URLs
               </button>
               <button
                 onClick={() => setActiveTab('merchants')}
@@ -1029,6 +1143,253 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       )}
                     </div>
                   </div>
+                </div>
+              )}
+
+              {/* Tab: Bulk URL Import */}
+              {activeTab === 'bulk' && (
+                <div className="space-y-6 text-xs">
+                  {/* Bulk Import Header & Input */}
+                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-5 space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <div>
+                        <h3 className="font-bold text-sm text-slate-900 flex items-center gap-2">
+                          <Layers className="w-4 h-4 text-[#FF7900]" />
+                          <span>Bulk Amazon India Product Importer</span>
+                        </h3>
+                        <p className="text-slate-500 text-[11px] mt-0.5">
+                          Paste Amazon URLs or short links (one per line). The engine resolves redirects, extracts ASINs, categorizes items, attaches your tracking tag (<code className="font-mono text-[#0B1220] font-bold">{AMAZON_ASSOCIATE_TAG}</code>), and queues verified products for one-click catalog import.
+                        </p>
+                      </div>
+                    </div>
+
+                    <form onSubmit={handleResolveBulkUrls} className="space-y-3">
+                      <div>
+                        <label className="block font-semibold text-slate-700 mb-1">
+                          Amazon Product URLs or Short Links (One URL per line):
+                        </label>
+                        <textarea
+                          rows={6}
+                          value={bulkUrlsInput}
+                          onChange={(e) => setBulkUrlsInput(e.target.value)}
+                          placeholder="https://www.amazon.in/dp/B000GAYQJ0&#10;https://amzn.in/d/0fyEdevo&#10;https://amzn.in/d/0etKLnL8&#10;https://amzn.in/d/0cjWjuuH"
+                          className="w-full p-3 bg-white border border-slate-300 rounded-lg font-mono text-xs focus:outline-none focus:border-[#FF7900]"
+                        />
+                      </div>
+
+                      <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+                        <div className="text-[11px] text-slate-500">
+                          Supports full <code className="font-mono">amazon.in/dp/ASIN</code> links and short <code className="font-mono">amzn.in/d/*</code> share links.
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setBulkUrlsInput(
+                                "https://amzn.in/d/0cOrWEp8\nhttps://amzn.in/d/0fyEdevo\nhttps://amzn.in/d/0etKLnL8\nhttps://amzn.in/d/0cjWjuuH\nhttps://amzn.in/d/0dcqfwBp\nhttps://amzn.in/d/0fpEf1vy\nhttps://amzn.in/d/0jlCQzu4\nhttps://amzn.in/d/0ivQamZc\nhttps://amzn.in/d/0gGmvNAd\nhttps://amzn.in/d/01DQlhHQ\nhttps://amzn.in/d/0hBODODh\nhttps://amzn.in/d/0da3oByf"
+                              );
+                            }}
+                            className="px-3 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-lg cursor-pointer"
+                          >
+                            Load Sample URLs
+                          </button>
+                          <button
+                            type="submit"
+                            disabled={bulkResolving}
+                            className="px-5 py-2 bg-[#0B1220] hover:bg-slate-800 text-white font-bold rounded-lg cursor-pointer flex items-center gap-1.5 shadow-xs"
+                          >
+                            {bulkResolving ? (
+                              <>
+                                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                                <span>Resolving Links &amp; Metadata...</span>
+                              </>
+                            ) : (
+                              <>
+                                <Search className="w-3.5 h-3.5 text-[#FF7900]" />
+                                <span>Analyze &amp; Resolve URLs</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    </form>
+
+                    {bulkFeedback && (
+                      <div
+                        className={`p-3 rounded-lg text-xs font-medium flex items-center gap-2 ${
+                          bulkFeedback.type === 'success'
+                            ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                            : bulkFeedback.type === 'error'
+                            ? 'bg-rose-50 text-rose-800 border border-rose-200'
+                            : 'bg-blue-50 text-blue-800 border border-blue-200'
+                        }`}
+                      >
+                        {bulkFeedback.type === 'success' ? (
+                          <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                        ) : bulkFeedback.type === 'error' ? (
+                          <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+                        ) : (
+                          <AlertCircle className="w-4 h-4 text-blue-600 shrink-0" />
+                        )}
+                        <span>{bulkFeedback.message}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Summary Bar & Confirm Import Action */}
+                  {bulkSummary && (
+                    <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-xs space-y-3">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div className="flex items-center gap-4 flex-wrap">
+                          <span className="font-bold text-slate-800 text-xs">Analysis Summary:</span>
+                          <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold px-2 py-0.5 rounded text-[11px]">
+                            {bulkSummary.ready} Ready to Import
+                          </span>
+                          <span className="bg-amber-50 text-amber-800 border border-amber-200 font-bold px-2 py-0.5 rounded text-[11px]">
+                            {bulkSummary.duplicates} Duplicates
+                          </span>
+                          {bulkSummary.reviewRequired > 0 && (
+                            <span className="bg-blue-50 text-blue-800 border border-blue-200 font-bold px-2 py-0.5 rounded text-[11px]">
+                              {bulkSummary.reviewRequired} Needs Review
+                            </span>
+                          )}
+                          {bulkSummary.failed > 0 && (
+                            <span className="bg-rose-50 text-rose-800 border border-rose-200 font-bold px-2 py-0.5 rounded text-[11px]">
+                              {bulkSummary.failed} Failed
+                            </span>
+                          )}
+                        </div>
+
+                        {bulkSummary.ready > 0 && (
+                          <button
+                            onClick={handleImportBulkUrls}
+                            disabled={bulkImporting}
+                            className="px-5 py-2 bg-[#FF7900] hover:bg-[#e66c00] text-white font-bold rounded-lg cursor-pointer flex items-center gap-1.5 shadow-sm self-start sm:self-auto"
+                          >
+                            {bulkImporting ? (
+                              <>
+                                <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                                <span>Importing Products...</span>
+                              </>
+                            ) : (
+                              <>
+                                <Plus className="w-3.5 h-3.5" />
+                                <span>Import {bulkSummary.ready} Verified Products to Catalog</span>
+                              </>
+                            )}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Preview Items Table */}
+                  {bulkResolvedItems.length > 0 && (
+                    <div className="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-xs">
+                      <div className="p-3 bg-slate-100 font-bold text-slate-700 border-b border-slate-200 flex items-center justify-between">
+                        <span>Resolved Items Queue ({bulkResolvedItems.length})</span>
+                        <span className="text-[11px] text-slate-500 font-normal">
+                          All affiliate URLs include tag <code className="font-mono text-slate-800 font-bold">{AMAZON_ASSOCIATE_TAG}</code>
+                        </span>
+                      </div>
+
+                      <div className="divide-y divide-slate-100 max-h-96 overflow-y-auto">
+                        {bulkResolvedItems.map((item, idx) => (
+                          <div key={idx} className="p-3 flex items-start justify-between gap-3 hover:bg-slate-50">
+                            <div className="flex items-start gap-3 min-w-0">
+                              {item.imageUrl ? (
+                                <img
+                                  src={item.imageUrl}
+                                  alt={item.title}
+                                  className="w-12 h-12 object-contain rounded bg-white border border-slate-200 p-0.5 shrink-0"
+                                />
+                              ) : (
+                                <div className="w-12 h-12 bg-slate-100 rounded border border-slate-200 flex items-center justify-center shrink-0 text-slate-400">
+                                  <AlertCircle className="w-5 h-5" />
+                                </div>
+                              )}
+                              <div className="min-w-0">
+                                <div className="font-bold text-slate-900 truncate max-w-md">
+                                  {item.title}
+                                </div>
+                                <div className="text-[11px] text-slate-500 flex items-center gap-1.5 flex-wrap mt-0.5">
+                                  {item.asin && (
+                                    <span className="font-mono font-bold text-slate-700">
+                                      ASIN: {item.asin}
+                                    </span>
+                                  )}
+                                  {item.currentPrice && (
+                                    <>
+                                      <span>·</span>
+                                      <span className="font-bold text-emerald-700">
+                                        ₹{item.currentPrice}
+                                      </span>
+                                    </>
+                                  )}
+                                  {item.originalPrice && item.originalPrice > (item.currentPrice || 0) && (
+                                    <span className="line-through text-slate-400">
+                                      ₹{item.originalPrice}
+                                    </span>
+                                  )}
+                                  {item.category && (
+                                    <>
+                                      <span>·</span>
+                                      <span className="capitalize text-slate-600 bg-slate-100 px-1.5 py-0.2 rounded">
+                                        {item.categoryName || item.category}
+                                      </span>
+                                    </>
+                                  )}
+                                  {item.rating && (
+                                    <>
+                                      <span>·</span>
+                                      <span className="text-amber-700 font-bold">
+                                        ★ {item.rating}
+                                      </span>
+                                    </>
+                                  )}
+                                </div>
+                                <div className="text-[10px] text-slate-400 font-mono truncate max-w-sm mt-0.5">
+                                  {item.affiliateUrl || item.inputUrl}
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="shrink-0 flex items-center gap-2">
+                              {item.status === 'ready' && (
+                                <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold px-2 py-0.5 rounded">
+                                  <Check className="w-3 h-3" />
+                                  Ready
+                                </span>
+                              )}
+                              {item.status === 'duplicate' && (
+                                <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-700 border border-amber-200 text-[10px] font-bold px-2 py-0.5 rounded" title={item.errorMessage}>
+                                  <AlertCircle className="w-3 h-3" />
+                                  In Catalog
+                                </span>
+                              )}
+                              {item.status === 'failed' && (
+                                <span className="inline-flex items-center gap-1 bg-rose-50 text-rose-700 border border-rose-200 text-[10px] font-bold px-2 py-0.5 rounded" title={item.errorMessage}>
+                                  <AlertTriangle className="w-3 h-3" />
+                                  Failed
+                                </span>
+                              )}
+                              {item.affiliateUrl && (
+                                <a
+                                  href={item.affiliateUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="p-1 text-slate-400 hover:text-[#007185] hover:bg-slate-100 rounded"
+                                  title="Test verified outbound affiliate link"
+                                >
+                                  <ExternalLink className="w-3.5 h-3.5" />
+                                </a>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
