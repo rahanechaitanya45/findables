@@ -27,8 +27,20 @@ import { AlertCircle, Home, ShoppingBag } from 'lucide-react';
 export default function App() {
   const [products, setProducts] = useState<Product[]>(INITIAL_PRODUCTS);
   const [categories, setCategories] = useState<Category[]>(CATEGORIES);
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [selectedCategory, setSelectedCategory] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('category') || 'all';
+    }
+    return 'all';
+  });
+  const [searchQuery, setSearchQuery] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('q') || params.get('search') || '';
+    }
+    return '';
+  });
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   // Client-side URL Routing State
@@ -83,6 +95,13 @@ export default function App() {
     const handlePopState = () => {
       const newPath = window.location.pathname || '/';
       setCurrentPath(newPath);
+
+      // Sync search and category from query parameters
+      const searchParams = new URLSearchParams(window.location.search);
+      const q = searchParams.get('q') || searchParams.get('search') || '';
+      setSearchQuery(q);
+      const cat = searchParams.get('category') || 'all';
+      setSelectedCategory(cat);
 
       // Handle product route via back/forward
       if (newPath.startsWith('/product/') || newPath.startsWith('/products/')) {
@@ -232,6 +251,23 @@ export default function App() {
       if (category && category !== 'all') {
         setSelectedCategory(category);
       }
+      try {
+        const url = new URL(window.location.href);
+        if (q.trim()) {
+          url.searchParams.set('q', q.trim());
+        } else {
+          url.searchParams.delete('q');
+          url.searchParams.delete('search');
+        }
+        if (category && category !== 'all') {
+          url.searchParams.set('category', category);
+        } else {
+          url.searchParams.delete('category');
+        }
+        window.history.replaceState(null, '', url.pathname + url.search + url.hash);
+      } catch {
+        // Safe SSR / fallback
+      }
     });
   };
 
@@ -316,16 +352,50 @@ export default function App() {
     // 6. Direct product route: /product/:id or /products/:id
     if (path.startsWith('/product/') || path.startsWith('/products/')) {
       const prodId = path.replace(/^\/products?\//, '');
-      const found = products.find(
-        (p) => p.id === prodId || p.asin.toLowerCase() === prodId.toLowerCase()
-      );
+      const found =
+        products.find(
+          (p) => p.id === prodId || p.asin.toLowerCase() === prodId.toLowerCase()
+        ) || selectedProduct;
+
       if (found) {
+        return (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between pb-1 flex-wrap gap-2">
+              <BackButton label="Back to Homepage" fallbackPath="/" onNavigate={navigate} />
+              <div className="text-xs text-slate-500 font-medium">
+                Product: <strong className="text-slate-800">{found.title}</strong>
+              </div>
+            </div>
+            {/* Show background collections while PDP modal is presented */}
+            <div id="categories-section">
+              <ShopByCategories categories={categories} onNavigate={navigate} />
+            </div>
+            <TodaysDealsSection
+              onSelectProduct={handleSelectProduct}
+              onToggleWishlist={toggleWishlist}
+              isWishlisted={isWishlisted}
+              onNavigateCategory={navigate}
+            />
+          </div>
+        );
+      } else {
+        // While fetching or if product is resolving
         return (
           <div className="space-y-6">
             <div className="flex items-center justify-between pb-1">
               <BackButton label="Back to Homepage" fallbackPath="/" onNavigate={navigate} />
             </div>
-            {/* Show background collections while PDP modal is presented */}
+            <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm p-8 text-center max-w-lg mx-auto my-6 space-y-3">
+              <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto border border-amber-200">
+                <ShoppingBag className="w-6 h-6 animate-pulse" />
+              </div>
+              <h2 className="text-base font-bold text-slate-900">
+                Loading Product Deal...
+              </h2>
+              <p className="text-xs text-slate-500">
+                Retrieving verified details for identifier <span className="font-mono font-semibold text-slate-700">{prodId}</span>.
+              </p>
+            </div>
             <div id="categories-section">
               <ShopByCategories categories={categories} onNavigate={navigate} />
             </div>
